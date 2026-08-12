@@ -1,0 +1,42 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
+from django.contrib import messages
+from .forms import CustomUserCreationForm, UserUpdateForm
+from .models import UserProfile
+
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('accounts:profile')
+
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f"Вітаємо, {user.username}! Ви успішно зареєструвалися та увійшли.")
+            return redirect('accounts:profile')
+    else:
+        form = CustomUserCreationForm()
+        
+    return render(request, 'accounts/register.html', {'form': form})
+
+
+@login_required
+def profile_view(request):
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        if u_form.is_valid():
+            u_form.save()
+            messages.success(request, 'Ваші дані успішно оновлено!')
+            return redirect('accounts:profile')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+
+    return render(request, 'accounts/profile.html', {
+        'profile': profile,
+        'u_form': u_form,
+    })

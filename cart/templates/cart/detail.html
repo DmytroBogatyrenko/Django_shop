@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Кошик{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Кошик</h1>
+
+{% if cart %}
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Ціна</th>
+                <th>Кількість</th>
+                <th>Разом</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart %}
+                <tr>
+                    <td>
+                        <a href="{{ item.product.get_absolute_url }}" class="text-decoration-none">
+                            {{ item.product.name }}
+                        </a>
+                    </td>
+                    <td>{{ item.price }} грн</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.total_price }} грн</td>
+                    <td>
+                        <form action="{% url 'cart:cart_remove' item.product.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Видалити</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-end">
+        <h4>Разом: {{ cart.get_total_price }} грн</h4>
+    </div>
+
+    <div class="text-end mt-3">
+        <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary">&larr; Продовжити покупки</a>
+    </div>
+{% else %}
+    <p class="alert alert-info">Кошик порожній.</p>
+    <a href="{% url 'shop:product_list' %}" class="btn btn-primary">До каталогу</a>
+{% endif %}
+{% endblock %}
