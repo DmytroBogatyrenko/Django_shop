@@ -30,6 +30,10 @@ class Category(models.Model):
     def is_root(self):
         """Чи є категорія кореневою (без батька)."""
         return self.parent_id is None
+    
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('shop:product_list_by_category', args=[self.id])
 
 
 class Product(models.Model):
@@ -51,7 +55,6 @@ class Product(models.Model):
     modified_at = models.DateTimeField("дата зміни", auto_now=True)
 
     def get_absolute_url(self):
-            # Потрібно передавати І id, І slug:
             return reverse('shop:product_detail', args=[self.id, self.slug])
     class Meta:
         verbose_name = "товар"

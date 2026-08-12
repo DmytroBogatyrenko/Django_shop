@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Замовлення #{{ order.id }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="my-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">Головна</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'orders:order_list' %}">Мої замовлення</a></li>
+    <li class="breadcrumb-item active">Замовлення #{{ order.id }}</li>
+  </ol>
+</nav>
+
+<h1 class="mb-4">Замовлення #{{ order.id }}</h1>
+
+<div class="row g-4">
+  <div class="col-md-7">
+    <div class="card mb-4">
+      <div class="card-header fw-bold">Позиції замовлення</div>
+      <table class="table mb-0">
+        <thead>
+          <tr><th>Товар</th><th>Ціна</th><th>К-ть</th><th>Сума</th></tr>
+        </thead>
+        <tbody>
+          {% for item in order.items.all %}
+            <tr>
+              <td>{{ item.product_name }}</td>
+              <td>{{ item.price }} грн</td>
+              <td>{{ item.quantity }}</td>
+              <td class="fw-bold">{{ item.get_total_price }} грн</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot class="table-light">
+          <tr>
+            <td colspan="3" class="text-end fw-bold">Разом:</td>
+            <td class="fw-bold text-success fs-5">{{ order.total_price }} грн</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card mb-3">
+      <div class="card-header fw-bold">Адреса доставки</div>
+      <div class="card-body">
+        {% with order.shipping_address as addr %}
+          <p class="mb-1"><strong>{{ addr.first_name }} {{ addr.last_name }}</strong></p>
+          <p class="mb-1">{{ addr.email }}</p>
+          <p class="mb-1">{{ addr.phone }}</p>
+          <p class="mb-1">{{ addr.city }}, {{ addr.address }}</p>
+          <p class="mb-0">{{ addr.postal_code }}</p>
+        {% endwith %}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <p class="mb-1 text-muted small">Дата: {{ order.created_at|date:"d.m.Y H:i" }}</p>
+        <p class="mb-0">Статус:
+          <span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% else %}warning text-dark{% endif %}">
+            {{ order.get_status_display }}
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="{% url 'orders:order_list' %}" class="btn btn-outline-secondary mt-3">&larr; До всіх замовлень</a>
+{% endblock %}

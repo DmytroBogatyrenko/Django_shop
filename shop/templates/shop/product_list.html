@@ -1,8 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Каталог товарів{% endblock %}
+{% block title %}{% if selected_category %}{{ selected_category.name }}{% else %}Каталог товарів{% endif %}{% endblock %}
 
 {% block content %}
+
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="my-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">Головна</a></li>
+    {% if selected_category %}
+      {% if selected_category.parent %}
+        <li class="breadcrumb-item">
+          <a href="{{ selected_category.parent.get_absolute_url }}">{{ selected_category.parent.name }}</a>
+        </li>
+      {% endif %}
+      <li class="breadcrumb-item active" aria-current="page">{{ selected_category.name }}</li>
+    {% else %}
+      <li class="breadcrumb-item active" aria-current="page">Всі товари</li>
+    {% endif %}
+  </ol>
+</nav>
+
 <div class="row mb-4">
     <div class="col-md-6">
         <form method="get" action="" class="d-flex">

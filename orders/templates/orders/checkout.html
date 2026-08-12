@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Оформлення замовлення{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="my-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">Головна</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'cart:cart_detail' %}">Кошик</a></li>
+    <li class="breadcrumb-item active">Оформлення</li>
+  </ol>
+</nav>
+
+<h1 class="mb-4">Оформлення замовлення</h1>
+
+<div class="row g-4">
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-header fw-bold">Адреса доставки</div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Імʼя</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Прізвище</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              {{ form.email }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Телефон</label>
+              {{ form.phone }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Місто</label>
+              {{ form.city }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Поштовий індекс</label>
+              {{ form.postal_code }}
+            </div>
+            <div class="col-12">
+              <label class="form-label">Адреса</label>
+              {{ form.address }}
+            </div>
+          </div>
+          <div class="mt-4 d-grid">
+            <button type="submit" class="btn btn-success btn-lg">Підтвердити замовлення</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card">
+      <div class="card-header fw-bold">Ваше замовлення</div>
+      <ul class="list-group list-group-flush">
+        {% for item in cart %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ item.product.name }} <span class="text-muted">× {{ item.quantity }}</span></span>
+            <span class="fw-bold">{{ item.total_price }} грн</span>
+          </li>
+        {% endfor %}
+        <li class="list-group-item d-flex justify-content-between fw-bold fs-5">
+          <span>Разом:</span>
+          <span class="text-success">{{ cart.get_total_price }} грн</span>
+        </li>
+      </ul>
+    </div>
+    <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-secondary mt-3 w-100">&larr; Повернутись до кошика</a>
+  </div>
+</div>
+{% endblock %}

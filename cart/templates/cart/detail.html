@@ -38,6 +38,12 @@
         </tbody>
     </table>
 
+    <div class="text-end mt-3">
+        <a href="{% url 'orders:checkout' %}" class="btn btn-success btn-lg">
+            Оформити замовлення
+        </a>
+    </div>
+
     <div class="d-flex justify-content-end">
         <h4>Разом: {{ cart.get_total_price }} грн</h4>
     </div>

@@ -17,6 +17,7 @@
             Ви увійшли як: <strong>{{ user.username }}</strong>
             </span>
             <a href="{% url 'accounts:profile' %}" class="btn btn-outline-light btn-sm me-2">Мій профіль</a>
+            <a href="{% url 'orders:order_list' %}" class="btn btn-outline-light btn-sm me-2">Мої замовлення</a>
             <form action="{% url 'accounts:logout' %}" method="post" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger btn-sm">Вийти</button>
