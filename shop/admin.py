@@ -20,3 +20,10 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ["name"]
     prepopulated_fields = {"slug": ("name",)}
     inlines = [ProductImageInline]
+    list_per_page=5
+    # inlines = ['price']
+    
+# class Price_inline(admin.TabularInline):
+#     model = Product
+    
+    

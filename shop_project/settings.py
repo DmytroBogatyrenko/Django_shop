@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'cart',
     'shop',
     'orders', 
+    'promocode',
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
