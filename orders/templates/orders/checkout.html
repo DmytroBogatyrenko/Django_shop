@@ -28,7 +28,6 @@
             <div class="col-md-6">
               <label class="form-label">Прізвище</label>
               {{ form.last_name }}
-              {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors }}</div>{% endif %}
             </div>
             <div class="col-md-6">
               <label class="form-label">Email</label>
@@ -60,22 +59,121 @@
   </div>
 
   <div class="col-md-5">
-    <div class="card">
+    <!-- Підсумок кошика -->
+    <div class="card mb-3">
       <div class="card-header fw-bold">Ваше замовлення</div>
       <ul class="list-group list-group-flush">
         {% for item in cart %}
           <li class="list-group-item d-flex justify-content-between">
             <span>{{ item.product.name }} <span class="text-muted">× {{ item.quantity }}</span></span>
-            <span class="fw-bold">{{ item.total_price }} грн</span>
+            <span>{{ item.total_price }} грн</span>
           </li>
         {% endfor %}
+
+        <!-- Рядок з оригінальною ціною -->
+        <li class="list-group-item d-flex justify-content-between">
+          <span>Сума без знижки:</span>
+          <span>{{ original_price }} грн</span>
+        </li>
+
+        <!-- Рядок зі знижкою — показуємо тільки якщо промокод є -->
+        {% if promocode %}
+          <li class="list-group-item d-flex justify-content-between text-success">
+            <span>Знижка ({{ promocode.code }} −{{ promocode.value }}%):</span>
+            <span>−{{ discount_amount }} грн</span>
+          </li>
+        {% endif %}
+
+        <!-- Підсумкова ціна -->
         <li class="list-group-item d-flex justify-content-between fw-bold fs-5">
-          <span>Разом:</span>
-          <span class="text-success">{{ cart.get_total_price }} грн</span>
+          <span>До оплати:</span>
+          <span class="text-success">{{ final_price }} грн</span>
         </li>
       </ul>
     </div>
-    <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-secondary mt-3 w-100">&larr; Повернутись до кошика</a>
+
+    <!-- Блок промокоду -->
+    <div class="card">
+      <div class="card-header fw-bold">Промокод</div>
+      <div class="card-body">
+        {% if promocode %}
+          <!-- Промокод вже застосовано -->
+          <div class="alert alert-success py-2 mb-2">
+            ✅ Застосовано: <strong>{{ promocode.code }}</strong> (−{{ promocode.value }}%)
+          </div>
+          <!-- Кнопка скасування промокоду -->
+          <button onclick="removePromocode()" class="btn btn-sm btn-outline-danger w-100">
+            Скасувати промокод
+          </button>
+        {% else %}
+          <!-- Форма для введення промокоду -->
+          <div class="input-group">
+            <input type="text" id="promocode-input" class="form-control"
+                   placeholder="Введіть промокод">
+            <button onclick="applyPromocode()" class="btn btn-outline-primary">
+              Застосувати
+            </button>
+          </div>
+          <!-- Тут JavaScript показуватиме повідомлення про помилку або успіх -->
+          <div id="promocode-message" class="mt-2 small"></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-secondary mt-3 w-100">
+      &larr; Повернутись до кошика
+    </a>
   </div>
 </div>
+
+<!-- JavaScript для роботи з промокодом без перезавантаження сторінки -->
+<script>
+  // getCookie — допоміжна функція: читає CSRF-токен з cookies браузера.
+  // Django вимагає цей токен у кожному POST-запиті для захисту від атак.
+  function getCookie(name) {
+    let value = `; ${document.cookie}`;
+    let parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  function applyPromocode() {
+    // Беремо текст з поля вводу
+    const code = document.getElementById('promocode-input').value.trim();
+    const msgDiv = document.getElementById('promocode-message');
+
+    if (!code) {
+      msgDiv.innerHTML = '<span class="text-danger">Введіть код</span>';
+      return;
+    }
+
+    // fetch — це сучасний JavaScript-спосіб відправити запит на сервер
+    // без перезавантаження сторінки (це і є AJAX)
+    fetch("{% url 'promocode:apply' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': getCookie('csrftoken'),  // обовʼязково для Django
+      },
+      body: `code=${encodeURIComponent(code)}`,
+    })
+    .then(response => response.json())  // перетворюємо відповідь сервера в JS-обʼєкт
+    .then(data => {
+      if (data.success) {
+        // Промокод прийнятий — перезавантажуємо сторінку щоб показати знижку
+        location.reload();
+      } else {
+        // Сервер повернув помилку — показуємо її під полем
+        msgDiv.innerHTML = `<span class="text-danger">${data.error}</span>`;
+      }
+    });
+  }
+
+  function removePromocode() {
+    fetch("{% url 'promocode:remove' %}", {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    })
+    .then(() => location.reload());  // після скасування — перезавантажуємо
+  }
+</script>
 {% endblock %}

@@ -3,6 +3,7 @@ from django.db import models
 
 from shop.models import Product
 
+from promocode.models import Promocode
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -31,6 +32,17 @@ class Order(models.Model):
     total_price = models.DecimalField('загальна сума', max_digits=10, decimal_places=2, default=0)
     created_at = models.DateTimeField('дата створення', auto_now_add=True)
     updated_at = models.DateTimeField('дата оновлення', auto_now=True)
+
+    coupon = models.ForeignKey(
+        Promocode,
+        verbose_name='промокод',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+    )
+
+    discount = models.PositiveIntegerField("знижка %", default=0)
 
     class Meta:
         verbose_name = 'замовлення'
