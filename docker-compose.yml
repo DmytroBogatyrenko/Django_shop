@@ -1,0 +1,31 @@
+version: '3.9'
+
+# docker-compose описує всі "сервіси" (контейнери) які запускаються разом.
+# Команда для запуску: docker-compose up
+# Команда для зупинки: docker-compose down
+
+services:
+
+  # Сервіс 1: наш Django-застосунок
+  web:
+    build: .
+    ports:
+      - "8000:8000"      # порт хоста : порт контейнера
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=dev-secret-key-not-for-production
+      - REDIS_URL=redis://redis:6379/0
+      # "redis" тут — це імʼя сервісу нижче, Docker сам розрізняє адресу
+    depends_on:
+      - redis             # web запускається тільки після redis
+    volumes:
+      - ./media:/app/media   # папка media на хості = /app/media в контейнері
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  # Сервіс 2: Redis (кеш)
+  redis:
+    image: redis:7-alpine  # офіційний образ, alpine = мінімальний розмір
+    ports:
+      - "6379:6379"

@@ -1,14 +1,21 @@
-from django.shortcuts import render, get_object_or_404
-from django.db.models import Q
+from django.core.cache import cache
 from django.core.paginator import Paginator
-from .models import Product, Category
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, render
+
+from .models import Category, Product
 
 
 def product_list(request, category_id=None):
+    categories = cache.get('root_categories')
+    if categories is None:
+        categories = list(
+            Category.objects.filter(parent=None).prefetch_related('children')
+        )
+        cache.set('root_categories', categories, 60 * 15)
+
     category = None
-    categories = Category.objects.filter(parent=None).prefetch_related('children')
-    
-    products = Product.objects.all().select_related('category')
+    products = Product.objects.all().select_related('category').prefetch_related('images')
 
     if category_id:
         category = get_object_or_404(Category, id=category_id)
@@ -40,13 +47,20 @@ def product_list(request, category_id=None):
 
 
 def product_detail(request, id, slug):
-    product = get_object_or_404(Product, id=id, slug=slug)
+    cache_key = f'product_{id}'
+    product = cache.get(cache_key)
+
+    if product is None:
+        product = get_object_or_404(
+            Product.objects.select_related('category').prefetch_related('images'),
+            id=id, slug=slug,
+        )
+        cache.set(cache_key, product, 60 * 15)
 
     recently_viewed = request.session.get('recently_viewed', [])
     if product.id in recently_viewed:
         recently_viewed.remove(product.id)
     recently_viewed.insert(0, product.id)
-
     request.session['recently_viewed'] = recently_viewed[:10]
     request.session.modified = True
 
