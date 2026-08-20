@@ -13,3 +13,5 @@ whitenoise==6.9.0
 psycopg2-binary==2.9.10
 
 django-ratelimit==4.1.0
+
+dj-database-url==2.3.0
