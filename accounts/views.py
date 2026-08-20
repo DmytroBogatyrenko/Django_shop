@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django_ratelimit.decorators import ratelimit
 
@@ -9,7 +8,7 @@ from .forms import CustomUserCreationForm, UserUpdateForm
 from .models import UserProfile
 
 
-@ratelimit(key='ip', rate='10/m', method='POST', block=True)
+@ratelimit(key='header:x-forwarded-for', rate='10/m', method='POST', block=True)
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('accounts:profile')
@@ -27,7 +26,7 @@ def register_view(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 
-@ratelimit(key='ip', rate='20/m', method='POST', block=True)
+@ratelimit(key='header:x-forwarded-for', rate='20/m', method='POST', block=True)
 def login_view(request):
     from django.contrib.auth.views import LoginView
     return LoginView.as_view(
