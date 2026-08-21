@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django_ratelimit.decorators import ratelimit
 
-from .forms import CustomUserCreationForm, UserUpdateForm
+from .forms import CustomUserCreationForm, UserProfileForm, UserUpdateForm
 from .models import UserProfile
 
 
@@ -40,14 +40,21 @@ def profile_view(request):
 
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST, instance=request.user)
-        if u_form.is_valid():
+        p_form = UserProfileForm(request.POST, request.FILES, instance=profile)
+
+        if u_form.is_valid() and p_form.is_valid():
             u_form.save()
-            messages.success(request, 'Ваші дані успішно оновлено.')
+            p_form.save()
+            messages.success(request, 'Профіль успішно оновлено.')
             return redirect('accounts:profile')
+        else:
+            messages.error(request, 'Перевірте правильність заповнення форми.')
     else:
         u_form = UserUpdateForm(instance=request.user)
+        p_form = UserProfileForm(instance=profile)
 
     return render(request, 'accounts/profile.html', {
         'profile': profile,
         'u_form': u_form,
+        'p_form': p_form,
     })
