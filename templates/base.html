@@ -3,33 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Цитадель — Крамниця Реліквій{% endblock %}</title>
+    <title>{% block title %}Rare Find — Магазин Унікальних Знахідок{% endblock %}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <style>
         /* ── Токени ── */
         :root {
-            --c-bg:       #060d08;
-            --c-surface:  #0d1a10;
-            --c-surface2: #142018;
-            --c-border:   rgba(201, 168, 76, 0.14);
-            --c-border-h: rgba(201, 168, 76, 0.40);
+            --c-bg:       #05080a;
+            --c-surface:  #0a1118;
+            --c-surface2: #101c26;
+            --c-border:   rgba(100, 200, 255, 0.10);
+            --c-border-h: rgba(100, 200, 255, 0.30);
+            --c-accent:   #64c8ff;
+            --c-accent-lt:#a0e0ff;
+            --c-accent-dk:#2a6a8a;
             --c-gold:     #c9a84c;
             --c-gold-lt:  #e2c472;
             --c-gold-dk:  #7a5e22;
-            --c-text:     #c8bfa8;
-            --c-text-h:   #f0ead8;
-            --c-muted:    #6b6350;
+            --c-purple:   #b388ff;
+            --c-purple-dk:#6a3fbf;
+            --c-text:     #b8c8d8;
+            --c-text-h:   #e8f0f8;
+            --c-muted:    #556878;
             --c-danger:   #7a2020;
             --c-success:  #1e5c2a;
-            --radius:     6px;
-            --radius-lg:  12px;
-            --transition: 0.2s ease;
+            --radius:     8px;
+            --radius-lg:  16px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* ── Reset поверх Bootstrap ── */
+        /* ── Reset ── */
+        * { box-sizing: border-box; }
         body {
             background-color: var(--c-bg);
             color: var(--c-text);
@@ -39,9 +45,33 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
-        /* Bootstrap override — темні картки і форми */
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(1px 1px at 10% 20%, rgba(100,200,255,0.3), transparent),
+                radial-gradient(1px 1px at 30% 80%, rgba(179,136,255,0.2), transparent),
+                radial-gradient(1px 1px at 50% 10%, rgba(201,168,76,0.25), transparent),
+                radial-gradient(1px 1px at 70% 60%, rgba(100,200,255,0.2), transparent),
+                radial-gradient(1px 1px at 90% 30%, rgba(179,136,255,0.15), transparent),
+                radial-gradient(1.5px 1.5px at 20% 50%, rgba(201,168,76,0.2), transparent),
+                radial-gradient(1px 1px at 60% 90%, rgba(100,200,255,0.15), transparent),
+                radial-gradient(1px 1px at 80% 10%, rgba(201,168,76,0.15), transparent);
+            animation: starDrift 30s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes starDrift {
+            0%   { transform: translateY(0); }
+            100% { transform: translateY(-50px); }
+        }
+
+        /* Bootstrap overrides */
         .bg-dark  { background-color: var(--c-surface) !important; }
         .card     { background-color: var(--c-surface); border-color: var(--c-border); border-radius: var(--radius-lg); }
         .form-control, .form-select {
@@ -52,9 +82,9 @@
         }
         .form-control:focus, .form-select:focus {
             background-color: var(--c-surface2);
-            border-color: var(--c-gold);
+            border-color: var(--c-accent);
             color: var(--c-text-h);
-            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+            box-shadow: 0 0 0 3px rgba(100, 200, 255, 0.12);
         }
         .form-control::placeholder { color: var(--c-muted); }
         .form-label {
@@ -65,55 +95,38 @@
             color: var(--c-muted);
             margin-bottom: 0.35rem;
         }
-        a { color: var(--c-gold); text-decoration: none; transition: color var(--transition); }
-        a:hover { color: var(--c-gold-lt); }
+        a { color: var(--c-accent); text-decoration: none; transition: color var(--transition); }
+        a:hover { color: var(--c-accent-lt); }
         h1, h2, h3, h4, h5, h6 { color: var(--c-text-h); }
 
-        /* ── NAVBAR ── */
-        .cit-navbar {
-            background: rgba(6, 13, 8, 0.96);
+        /* ══════════════════════════════════════════════
+           NAVBAR
+           ══════════════════════════════════════════════ */
+        .rf-navbar {
+            background: rgba(5, 8, 10, 0.92);
             border-bottom: 1px solid var(--c-border);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 200;
         }
-        .cit-navbar .container {
-            height: 58px;
+        .rf-navbar .container {
+            height: 64px;
             display: flex;
             align-items: center;
-            gap: 32px;
+            justify-content: space-between;
+            gap: 20px;
+            position: relative;
         }
 
-        /* Логотип */
-        .cit-brand {
-            font-family: 'Cinzel', serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--c-gold) !important;
-            text-decoration: none;
-            flex-shrink: 0;
-            transition: color var(--transition);
-        }
-        .cit-brand:hover { color: var(--c-gold-lt) !important; }
-        .cit-brand-sep {
-            width: 1px;
-            height: 18px;
-            background: var(--c-border-h);
-            flex-shrink: 0;
-        }
-
-        /* Навігаційні посилання */
-        .cit-nav {
+        /* Nav links (left) */
+        .rf-nav-left {
             display: flex;
             align-items: center;
             gap: 4px;
-            flex: 1;
         }
-        .cit-nav-link {
+        .rf-nav-link {
             padding: 6px 14px;
             font-size: 0.82rem;
             font-weight: 500;
@@ -122,52 +135,188 @@
             transition: color var(--transition), background var(--transition);
             white-space: nowrap;
         }
-        .cit-nav-link:hover {
+        .rf-nav-link:hover {
             color: var(--c-text-h);
-            background: rgba(255,255,255,0.04);
+            background: rgba(100,200,255,0.06);
         }
 
-        /* Права частина navbar */
-        .cit-nav-right {
+        /* ══════════════════════════════════════════════
+           RADIAL LOGO MENU (center of navbar)
+           ══════════════════════════════════════════════ */
+        .rf-radial-wrap {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 300;
+        }
+        .rf-radial-trigger {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--c-accent-dk), var(--c-accent));
+            border: 2px solid rgba(100,200,255,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+            box-shadow: 0 0 20px rgba(100,200,255,0.15), inset 0 0 12px rgba(255,255,255,0.1);
+            text-decoration: none !important;
+            position: relative;
+            z-index: 10;
+        }
+        .rf-radial-trigger:hover {
+            transform: rotate(360deg) scale(1.1);
+            box-shadow: 0 0 40px rgba(100,200,255,0.35), 0 0 80px rgba(100,200,255,0.15), inset 0 0 12px rgba(255,255,255,0.15);
+        }
+        .rf-radial-trigger span {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 0.65rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 0.05em;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            line-height: 1;
+        }
+
+        /* The floating brand name under the circle */
+        .rf-brand-label {
+            position: absolute;
+            top: 62px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--c-accent);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease 0.1s;
+            pointer-events: none;
+        }
+        .rf-radial-wrap:hover .rf-brand-label {
+            opacity: 1;
+        }
+
+        /* Cloud bubbles (categories) */
+        .rf-cloud {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.3);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 5;
+        }
+        .rf-cloud a {
+            display: block;
+            padding: 8px 18px;
+            background: rgba(10, 17, 24, 0.92);
+            border: 1px solid var(--c-border-h);
+            border-radius: 24px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--c-text-h) !important;
+            white-space: nowrap;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 15px rgba(100,200,255,0.08);
+            transition: all 0.25s ease;
+            text-decoration: none !important;
+            animation: cloudFloat 3s ease-in-out infinite;
+            animation-play-state: paused;
+        }
+        .rf-cloud a:hover {
+            background: rgba(100,200,255,0.12);
+            border-color: var(--c-accent);
+            color: var(--c-accent-lt) !important;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 20px rgba(100,200,255,0.2);
+            transform: scale(1.08);
+        }
+
+        @keyframes cloudFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        /* When the radial wrap is hovered, explode the clouds outward */
+        .rf-radial-wrap:hover .rf-cloud {
+            pointer-events: auto;
+            opacity: 1;
+        }
+        .rf-radial-wrap:hover .rf-cloud a {
+            animation-play-state: running;
+        }
+
+        /* Positions for up to 8 clouds — radially distributed */
+        .rf-radial-wrap:hover .rf-cloud:nth-child(2) { transform: translate(calc(-50% + 0px), calc(-50% - 80px)) scale(1); }
+        .rf-radial-wrap:hover .rf-cloud:nth-child(3) { transform: translate(calc(-50% + 95px), calc(-50% - 55px)) scale(1); }
+        .rf-radial-wrap:hover .rf-cloud:nth-child(4) { transform: translate(calc(-50% + 110px), calc(-50% + 15px)) scale(1); }
+        .rf-radial-wrap:hover .rf-cloud:nth-child(5) { transform: translate(calc(-50% + 85px), calc(-50% + 75px)) scale(1); }
+        .rf-radial-wrap:hover .rf-cloud:nth-child(6) { transform: translate(calc(-50% + 0px), calc(-50% + 90px)) scale(1); }
+        .rf-radial-wrap:hover .rf-cloud:nth-child(7) { transform: translate(calc(-50% - 85px), calc(-50% + 75px)) scale(1); }
+        .rf-radial-wrap:hover .rf-cloud:nth-child(8) { transform: translate(calc(-50% - 110px), calc(-50% + 15px)) scale(1); }
+        .rf-radial-wrap:hover .rf-cloud:nth-child(9) { transform: translate(calc(-50% - 95px), calc(-50% - 55px)) scale(1); }
+
+        /* Staggered delay for each cloud */
+        .rf-cloud:nth-child(2) { transition-delay: 0.00s; }
+        .rf-cloud:nth-child(3) { transition-delay: 0.04s; }
+        .rf-cloud:nth-child(4) { transition-delay: 0.08s; }
+        .rf-cloud:nth-child(5) { transition-delay: 0.12s; }
+        .rf-cloud:nth-child(6) { transition-delay: 0.16s; }
+        .rf-cloud:nth-child(7) { transition-delay: 0.20s; }
+        .rf-cloud:nth-child(8) { transition-delay: 0.24s; }
+        .rf-cloud:nth-child(9) { transition-delay: 0.28s; }
+
+        /* Float animation variation per cloud */
+        .rf-cloud:nth-child(odd) a  { animation-duration: 2.8s; }
+        .rf-cloud:nth-child(even) a { animation-duration: 3.4s; animation-delay: 0.5s; }
+
+        /* Nav right side */
+        .rf-nav-right {
             display: flex;
             align-items: center;
             gap: 10px;
             flex-shrink: 0;
         }
 
-        /* Кнопка кошика — виділена */
-        .cit-cart-btn {
+        /* Cart button */
+        .rf-cart-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             padding: 7px 16px;
             font-size: 0.82rem;
             font-weight: 600;
-            color: var(--c-gold);
+            color: var(--c-accent);
             border: 1px solid var(--c-border-h);
             border-radius: var(--radius);
-            background: rgba(201, 168, 76, 0.06);
+            background: rgba(100,200,255,0.05);
             transition: all var(--transition);
             letter-spacing: 0.02em;
         }
-        .cit-cart-btn:hover {
-            color: var(--c-gold-lt);
-            background: rgba(201, 168, 76, 0.14);
-            border-color: var(--c-gold);
+        .rf-cart-btn:hover {
+            color: var(--c-accent-lt);
+            background: rgba(100,200,255,0.12);
+            border-color: var(--c-accent);
+            box-shadow: 0 0 16px rgba(100,200,255,0.12);
         }
-        .cit-cart-count {
+        .rf-cart-count {
             font-size: 0.7rem;
             font-weight: 700;
-            background: var(--c-gold-dk);
-            color: var(--c-gold-lt);
+            background: var(--c-accent-dk);
+            color: #fff;
             padding: 1px 7px;
             border-radius: 20px;
             min-width: 20px;
             text-align: center;
         }
 
-        /* Юзер-пілюля */
-        .cit-user-tag {
+        /* User tag */
+        .rf-user-tag {
             font-size: 0.78rem;
             font-weight: 500;
             color: var(--c-muted);
@@ -176,10 +325,10 @@
             border-radius: var(--radius);
             white-space: nowrap;
         }
-        .cit-user-tag strong { color: var(--c-text-h); font-weight: 600; }
+        .rf-user-tag strong { color: var(--c-text-h); font-weight: 600; }
 
-        /* Кнопки navbar */
-        .cit-btn-ghost {
+        /* Buttons */
+        .rf-btn-ghost {
             font-size: 0.8rem;
             font-weight: 500;
             color: var(--c-muted);
@@ -191,24 +340,29 @@
             transition: all var(--transition);
             white-space: nowrap;
         }
-        .cit-btn-ghost:hover { color: var(--c-text-h); border-color: var(--c-border); background: rgba(255,255,255,0.04); }
+        .rf-btn-ghost:hover { color: var(--c-text-h); border-color: var(--c-border); background: rgba(255,255,255,0.04); }
 
-        .cit-btn-primary {
+        .rf-btn-primary {
             font-size: 0.8rem;
             font-weight: 600;
-            color: #060d08;
+            color: #05080a;
             padding: 7px 18px;
             border-radius: var(--radius);
             border: none;
-            background: var(--c-gold);
+            background: linear-gradient(135deg, var(--c-accent), var(--c-accent-lt));
             cursor: pointer;
             transition: all var(--transition);
             letter-spacing: 0.03em;
             display: inline-block;
         }
-        .cit-btn-primary:hover { background: var(--c-gold-lt); color: #060d08; transform: translateY(-1px); }
+        .rf-btn-primary:hover { 
+            background: linear-gradient(135deg, var(--c-accent-lt), #c0f0ff);
+            color: #05080a; 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(100,200,255,0.2);
+        }
 
-        .cit-btn-danger {
+        .rf-btn-danger {
             font-size: 0.8rem;
             font-weight: 500;
             color: #ef9a9a;
@@ -219,32 +373,29 @@
             cursor: pointer;
             transition: all var(--transition);
         }
-        .cit-btn-danger:hover { background: rgba(139, 32, 32, 0.25); border-color: rgba(139, 32, 32, 0.7); }
+        .rf-btn-danger:hover { background: rgba(139, 32, 32, 0.25); border-color: rgba(139, 32, 32, 0.7); }
 
-        /* ── СИГНАТУРНА ДЕТАЛЬ: золота ліска зліва ── */
-        /* Використовується в заголовках секцій, активних картках */
-        .cit-accent-line {
-            border-left: 2px solid var(--c-gold);
-            padding-left: 16px;
-        }
-
-        /* ── ОСНОВНІ КНОПКИ КОНТЕНТУ ── */
-        .btn-cit-primary {
-            background: var(--c-gold);
-            color: #060d08 !important;
+        /* ── Content buttons ── */
+        .btn-rf-primary {
+            background: linear-gradient(135deg, var(--c-accent), var(--c-accent-lt));
+            color: #05080a !important;
             border: none;
             border-radius: var(--radius);
             font-weight: 600;
             font-size: 0.85rem;
             letter-spacing: 0.04em;
             padding: 10px 24px;
-            transition: background var(--transition), transform var(--transition);
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
         }
-        .btn-cit-primary:hover { background: var(--c-gold-lt); transform: translateY(-1px); }
+        .btn-rf-primary:hover { 
+            background: linear-gradient(135deg, var(--c-accent-lt), #c0f0ff);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(100,200,255,0.2);
+        }
 
-        .btn-cit-outline {
+        .btn-rf-outline {
             background: transparent;
-            color: var(--c-gold) !important;
+            color: var(--c-accent) !important;
             border: 1px solid var(--c-border-h);
             border-radius: var(--radius);
             font-weight: 500;
@@ -252,9 +403,9 @@
             padding: 9px 20px;
             transition: all var(--transition);
         }
-        .btn-cit-outline:hover { border-color: var(--c-gold); background: rgba(201,168,76,0.06); }
+        .btn-rf-outline:hover { border-color: var(--c-accent); background: rgba(100,200,255,0.06); }
 
-        .btn-cit-danger {
+        .btn-rf-danger {
             background: rgba(122, 32, 32, 0.3);
             color: #ef9a9a !important;
             border: 1px solid rgba(122, 32, 32, 0.5);
@@ -263,19 +414,27 @@
             padding: 9px 20px;
             transition: all var(--transition);
         }
-        .btn-cit-danger:hover { background: rgba(122, 32, 32, 0.5); }
+        .btn-rf-danger:hover { background: rgba(122, 32, 32, 0.5); }
 
-        /* ── КАРТКИ КОНТЕНТУ ── */
-        .cit-card {
+        /* ── Accent line ── */
+        .rf-accent-line {
+            border-left: 2px solid var(--c-accent);
+            padding-left: 16px;
+        }
+
+        /* ── Content cards ── */
+        .rf-card {
             background: var(--c-surface);
             border: 1px solid var(--c-border);
             border-radius: var(--radius-lg);
             padding: 2rem;
         }
-        .cit-card-sm { padding: 1.25rem; }
+        .rf-card-sm { padding: 1.25rem; }
 
-        /* ── БЕЙДЖІ РІДКІСНОСТІ ── */
-        .cit-rarity {
+        /* ══════════════════════════════════════════════
+           RARITY BADGES
+           ══════════════════════════════════════════════ */
+        .rf-rarity {
             font-size: 0.68rem;
             font-weight: 600;
             letter-spacing: 0.08em;
@@ -284,18 +443,42 @@
             border-radius: 20px;
             display: inline-block;
         }
-        .cit-rarity-common  { background: rgba(150,150,150,0.12); color: #9e9e9e; border: 1px solid rgba(150,150,150,0.25); }
-        .cit-rarity-rare    { background: rgba(33,150,243,0.1);   color: #90caf9; border: 1px solid rgba(33,150,243,0.3); }
-        .cit-rarity-epic    { background: rgba(156,39,176,0.12);   color: #ce93d8; border: 1px solid rgba(156,39,176,0.35); }
-        .cit-rarity-legend  {
+        .rf-rarity-common  { background: rgba(150,150,150,0.12); color: #9e9e9e; border: 1px solid rgba(150,150,150,0.25); }
+        .rf-rarity-rare    { background: rgba(33,150,243,0.1);   color: #90caf9; border: 1px solid rgba(33,150,243,0.3); }
+        .rf-rarity-epic    { background: rgba(156,39,176,0.12);   color: #ce93d8; border: 1px solid rgba(156,39,176,0.35); }
+        .rf-rarity-legend  {
             background: rgba(201,168,76,0.1);
             color: var(--c-gold-lt);
             border: 1px solid rgba(201,168,76,0.35);
             box-shadow: 0 0 8px rgba(201,168,76,0.2);
         }
 
-        /* ── ХЛІБНІ КРИХТИ ── */
-        .cit-breadcrumb {
+        /* ══════════════════════════════════════════════
+           MYSTERIOUS ITEM GLOW
+           ══════════════════════════════════════════════ */
+        .rf-glow-rare {
+            box-shadow: 0 0 20px rgba(33,150,243,0.15), 0 0 40px rgba(33,150,243,0.05);
+        }
+        .rf-glow-rare:hover {
+            box-shadow: 0 0 30px rgba(33,150,243,0.25), 0 0 60px rgba(33,150,243,0.1);
+        }
+        .rf-glow-epic {
+            box-shadow: 0 0 20px rgba(156,39,176,0.15), 0 0 40px rgba(156,39,176,0.05);
+        }
+        .rf-glow-epic:hover {
+            box-shadow: 0 0 30px rgba(156,39,176,0.25), 0 0 60px rgba(156,39,176,0.1);
+        }
+        .rf-glow-legend {
+            box-shadow: 0 0 20px rgba(201,168,76,0.2), 0 0 40px rgba(201,168,76,0.08);
+            animation: legendPulse 3s ease-in-out infinite;
+        }
+        @keyframes legendPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(201,168,76,0.2), 0 0 40px rgba(201,168,76,0.08); }
+            50% { box-shadow: 0 0 30px rgba(201,168,76,0.3), 0 0 60px rgba(201,168,76,0.15); }
+        }
+
+        /* ── Breadcrumbs ── */
+        .rf-breadcrumb {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -303,12 +486,12 @@
             color: var(--c-muted);
             margin-bottom: 2rem;
         }
-        .cit-breadcrumb a { color: var(--c-muted); }
-        .cit-breadcrumb a:hover { color: var(--c-gold); }
-        .cit-breadcrumb-sep { color: var(--c-border-h); font-size: 0.7rem; }
-        .cit-breadcrumb-cur { color: var(--c-text); }
+        .rf-breadcrumb a { color: var(--c-muted); }
+        .rf-breadcrumb a:hover { color: var(--c-accent); }
+        .rf-breadcrumb-sep { color: var(--c-border-h); font-size: 0.7rem; }
+        .rf-breadcrumb-cur { color: var(--c-text); }
 
-        /* ── ТАБЛИЦІ ── */
+        /* ── Tables ── */
         .table { color: var(--c-text); }
         .table thead th {
             color: var(--c-muted);
@@ -323,115 +506,191 @@
         .table-hover tbody tr:hover td { background: rgba(255,255,255,0.025); }
         .table-dark { --bs-table-bg: var(--c-surface); }
 
-        /* ── ПОВІДОМЛЕННЯ ── */
-        .cit-alert {
+        /* ── Alerts ── */
+        .rf-alert {
             padding: 12px 16px;
             border-radius: var(--radius);
             font-size: 0.87rem;
             margin-bottom: 1rem;
         }
-        .cit-alert-success {
+        .rf-alert-success {
             background: rgba(30, 92, 42, 0.25);
             color: #a5d6a7;
             border: 1px solid rgba(30, 92, 42, 0.5);
         }
-        .cit-alert-error {
+        .rf-alert-error {
             background: rgba(122, 32, 32, 0.25);
             color: #ef9a9a;
             border: 1px solid rgba(122, 32, 32, 0.5);
         }
-        .cit-alert-info {
-            background: rgba(201, 168, 76, 0.08);
-            color: var(--c-gold-lt);
+        .rf-alert-info {
+            background: rgba(100,200,255,0.08);
+            color: var(--c-accent-lt);
             border: 1px solid var(--c-border);
         }
-        /* warning — Django теж використовує цей тег */
-        .cit-alert-warning {
+        .rf-alert-warning {
             background: rgba(180, 100, 0, 0.2);
             color: #ffcc80;
             border: 1px solid rgba(180, 100, 0, 0.4);
         }
 
-        /* ── FOOTER ── */
-        .cit-footer {
+        /* ══════════════════════════════════════════════
+           FOOTER
+           ══════════════════════════════════════════════ */
+        .rf-footer {
             margin-top: auto;
-            padding: 28px 0;
+            padding: 32px 0;
             border-top: 1px solid var(--c-border);
             background: var(--c-surface);
+            position: relative;
+            z-index: 1;
         }
-        .cit-footer-inner {
+        .rf-footer-inner {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
             flex-wrap: wrap;
         }
-        .cit-footer-brand {
-            font-family: 'Cinzel', serif;
-            font-size: 0.78rem;
+        .rf-footer-brand {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 0.2em;
-            color: var(--c-gold-dk);
+            background: linear-gradient(135deg, var(--c-accent), var(--c-accent-lt));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-transform: uppercase;
         }
-        .cit-footer-copy {
+        .rf-footer-copy {
             font-size: 0.75rem;
             color: var(--c-muted);
         }
 
-        /* ── SCROLLBAR ── */
+        /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--c-bg); }
         ::-webkit-scrollbar-thumb { background: var(--c-border-h); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--c-gold-dk); }
-        ::selection { background: rgba(201,168,76,0.3); color: #fff; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--c-accent-dk); }
+        ::selection { background: rgba(100,200,255,0.3); color: #fff; }
+
+        /* ── Page transitions ── */
+        .rf-main-content {
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mysterious product image overlay in cards */
+        .rf-mystery-img-wrap {
+            position: relative;
+            overflow: hidden;
+        }
+        .rf-mystery-img-wrap img {
+            filter: blur(6px) saturate(0.4);
+            transition: filter 0.6s ease;
+        }
+        .rf-mystery-img-wrap:hover img {
+            filter: blur(0) saturate(1);
+        }
+        .rf-mystery-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: rgba(255,255,255,0.7);
+            text-shadow: 0 0 30px rgba(179,136,255,0.5);
+            transition: opacity 0.6s ease;
+            pointer-events: none;
+        }
+        .rf-mystery-img-wrap:hover .rf-mystery-overlay {
+            opacity: 0;
+        }
+
+        /* Levitation effect */
+        .rf-levitate {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+        }
+        .rf-levitate:hover {
+            transform: translateY(-8px);
+        }
+
+        /* Particle canvas for mysterious product detail */
+        #rf-particles-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
 
         {% block extra_css %}{% endblock %}
     </style>
 </head>
 <body>
 
-    <nav class="cit-navbar">
+    <nav class="rf-navbar">
         <div class="container">
-            <a href="{% url 'shop:product_list' %}" class="cit-brand">Цитадель</a>
-            <div class="cit-brand-sep"></div>
-
-            <div class="cit-nav">
-                <a href="{% url 'shop:product_list' %}" class="cit-nav-link">Каталог</a>
+            <div class="rf-nav-left">
+                <a href="{% url 'shop:product_list' %}" class="rf-nav-link">Каталог</a>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'accounts:profile' %}" class="cit-nav-link">Профіль</a>
-                    <a href="{% url 'orders:order_list' %}" class="cit-nav-link">Замовлення</a>
+                    <a href="{% url 'accounts:profile' %}" class="rf-nav-link">Профіль</a>
+                    <a href="{% url 'orders:order_list' %}" class="rf-nav-link">Замовлення</a>
                 {% endif %}
             </div>
 
-            <div class="cit-nav-right">
-                <a href="{% url 'cart:cart_detail' %}" class="cit-cart-btn">
-                    Скарбниця
+            <!-- ═══ RADIAL LOGO MENU ═══ -->
+            <div class="rf-radial-wrap">
+                <a href="{% url 'shop:product_list' %}" class="rf-radial-trigger">
+                    <span>RF</span>
+                </a>
+
+                {% for cat in nav_categories %}
+                <div class="rf-cloud">
+                    <a href="{% url 'shop:product_list_by_category' cat.id %}">{{ cat.name }}</a>
+                </div>
+                {% endfor %}
+
+                <div class="rf-brand-label">Rare Find</div>
+            </div>
+            <!-- ═══ END RADIAL LOGO MENU ═══ -->
+
+            <div class="rf-nav-right">
+                <a href="{% url 'cart:cart_detail' %}" class="rf-cart-btn">
+                    🛒 Кошик
                     {% if cart|length > 0 %}
-                        <span class="cit-cart-count">{{ cart|length }}</span>
+                        <span class="rf-cart-count">{{ cart|length }}</span>
                     {% endif %}
                 </a>
 
                 {% if user.is_authenticated %}
-                    <span class="cit-user-tag"><strong>{{ user.username }}</strong></span>
+                    <span class="rf-user-tag"><strong>{{ user.username }}</strong></span>
                     <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" class="cit-btn-danger">Вийти</button>
+                        <button type="submit" class="rf-btn-danger">Вийти</button>
                     </form>
                 {% else %}
-                    <a href="{% url 'accounts:login' %}" class="cit-btn-ghost">Увійти</a>
-                    <a href="{% url 'accounts:register' %}" class="cit-btn-primary">Вступити до Ордену</a>
+                    <a href="{% url 'accounts:login' %}" class="rf-btn-ghost">Увійти</a>
+                    <a href="{% url 'accounts:register' %}" class="rf-btn-primary">Приєднатися</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
-    <div class="container py-5 flex-grow-1">
+    <div class="container py-5 flex-grow-1 rf-main-content">
 
         {% if messages %}
         <div class="mb-4">
             {% for message in messages %}
-            <div class="cit-alert cit-alert-{{ message.tags }} d-flex align-items-start gap-3" role="alert">
+            <div class="rf-alert rf-alert-{{ message.tags }} d-flex align-items-start gap-3" role="alert">
                 <div>{{ message }}</div>
             </div>
             {% endfor %}
@@ -441,11 +700,11 @@
         {% block content %}{% endblock %}
     </div>
 
-    <footer class="cit-footer">
+    <footer class="rf-footer">
         <div class="container">
-            <div class="cit-footer-inner">
-                <span class="cit-footer-brand">Citadel</span>
-                <span class="cit-footer-copy">2026 · Крамниця Реліквій · Всі права захищені</span>
+            <div class="rf-footer-inner">
+                <span class="rf-footer-brand">Rare Find</span>
+                <span class="rf-footer-copy">2026 · Магазин Унікальних Знахідок · Всі права захищені</span>
             </div>
         </div>
     </footer>

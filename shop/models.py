@@ -37,7 +37,16 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    RARITY_CHOICES = [
+        ('common', 'Звичайний'),
+        ('rare', 'Рідкісний'),
+        ('epic', 'Епічний'),
+        ('legend', 'Легендарний'),
+    ]
+
     name = models.CharField("назва", max_length=100)
+
+    description = models.TextField("опис", blank=True, default="")
 
     category = models.ForeignKey(
         Category,
@@ -50,12 +59,22 @@ class Product(models.Model):
 
     slug = models.SlugField("slug", unique=True)
 
+    is_mysterious = models.BooleanField("загадковий товар", default=False)
+
+    rarity = models.CharField(
+        "рідкісність",
+        max_length=10,
+        choices=RARITY_CHOICES,
+        default='common',
+    )
+
     created_at = models.DateTimeField("дата створення", auto_now_add=True)
 
     modified_at = models.DateTimeField("дата зміни", auto_now=True)
 
     def get_absolute_url(self):
             return reverse('shop:product_detail', args=[self.id, self.slug])
+
     class Meta:
         verbose_name = "товар"
         verbose_name_plural = "товари"

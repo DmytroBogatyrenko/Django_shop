@@ -1,0 +1,16 @@
+[run]
+source = .
+omit =
+    */migrations/*
+    */.venv/*
+    */tests.py
+    manage.py
+    */settings*.py
+    */wsgi.py
+    */asgi.py
+
+[report]
+fail_under = 60
+
+[html]
+directory = htmlcov
