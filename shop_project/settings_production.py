@@ -7,7 +7,7 @@ import os
 
 # ── Безпека ────────────────────────────────────────────────────────────────────
 SECRET_KEY = os.environ['SECRET_KEY']
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 # ── База даних ─────────────────────────────────────────────────────────────────
