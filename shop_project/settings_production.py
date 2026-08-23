@@ -46,10 +46,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ── HTTPS ──────────────────────────────────────────────────────────────────────
-SECURE_SSL_REDIRECT = True
-# Вимикаємо debug toolbar в продакшні — він може ламати адмінку
 INSTALLED_APPS = [app for app in INSTALLED_APPS if app != 'debug_toolbar']
 MIDDLEWARE = [m for m in MIDDLEWARE if 'debug_toolbar' not in m]
+SECURE_SSL_REDIRECT = False
+# Вимикаємо debug toolbar в продакшні — він може ламати адмінку
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
