@@ -15,7 +15,7 @@ def checkout(request):
     cart = Cart(request)
 
     if len(cart) == 0:
-        messages.warning(request, 'Скарбниця порожня. Додайте реліквії перед оформленням.')
+        messages.warning(request, 'Скарбниця порожня. Додайте реліквії перед оформленням')
         return redirect('shop:product_list')
 
     form = ShippingAddressForm()
@@ -70,3 +70,36 @@ def order_detail(request, order_id):
         user=request.user,
     )
     return render(request, 'orders/order_detail.html', {'order': order})
+
+
+@login_required
+def cancel_order(request, order_id):
+
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if not order.can_be_cancelled():
+        messages.error(
+            request,
+            'Скасувати замовлення неможливо — '
+            'або пройшло більше 24 годин, або воно вже відправлено'
+        )
+        return redirect('orders:order_detail', order_id=order.id)
+
+    if request.method == 'POST':
+        order.status = 'cancelled'
+        order.save()
+        messages.success(request, f'Замовлення #{order.id} скасовано.')
+        return redirect('orders:order_list')
+
+    return redirect('orders:order_detail', order_id=order.id)
+
+
+@login_required
+def download_invoice(request, order_id):
+    order = get_object_or_404(
+        Order.objects.prefetch_related('items', 'shipping_address'),
+        id=order_id,
+        user=request.user,
+    )
+    from .pdf import generate_order_pdf
+    return generate_order_pdf(order)

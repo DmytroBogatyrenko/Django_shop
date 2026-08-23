@@ -43,6 +43,12 @@ INSTALLED_APPS = [
     'shop',
     'orders', 
     'promocode',
+    'reviews',
+    # django-allauth — Google OAuth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
@@ -56,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 INTERNAL_IPS = [
@@ -76,7 +83,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'shop.context_processors.recently_viewed_products',
-                'shop.context_processors.global_categories',
                 'cart.context_processors.cart',
             ],
         },
@@ -92,6 +98,8 @@ LOGIN_URL = 'accounts:login'
 WSGI_APPLICATION = 'shop_project.wsgi.application'
 
 
+# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -100,7 +108,6 @@ DATABASES = {
 }
 
 
-# Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -118,6 +125,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+# Internationalization
+# https://docs.djangoproject.com/en/6.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -137,7 +147,6 @@ MEDIA_URL = 'media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
 import os
 
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0')
@@ -153,6 +162,8 @@ CACHES = {
         'TIMEOUT': 60 * 15,
     }
 }
+
+
 
 RATELIMIT_USE_CACHE = 'default'
 

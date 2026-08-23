@@ -1,0 +1,78 @@
+# CI/CD Pipeline — GitHub Actions
+#
+# GitHub Actions — це автоматизований сервіс GitHub.
+# Кожного разу коли ти пушиш код — він автоматично:
+# 1. Встановлює залежності
+# 2. Запускає тести
+# 3. Перевіряє стиль коду (flake8)
+# 4. Показує badge зі статусом у README
+#
+# Якщо тести не пройшли — GitHub не дозволить зробити merge в main.
+# Це і є суть CI (Continuous Integration) — постійна перевірка якості.
+
+name: Django CI
+
+# Коли запускати цей pipeline
+on:
+  push:
+    branches: [ main ]      # при кожному push в main
+  pull_request:
+    branches: [ main ]      # при кожному pull request в main
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest  # запускаємо на Ubuntu (безкоштовно)
+
+    steps:
+      # Крок 1: клонуємо репозиторій
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Крок 2: встановлюємо Python
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          # Кешуємо pip-пакети щоб не завантажувати їх кожного разу
+          cache: 'pip'
+
+      # Крок 3: встановлюємо залежності
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8
+
+      # Крок 4: перевіряємо стиль коду flake8
+      # flake8 — це linter: знаходить синтаксичні помилки і порушення PEP8
+      # --max-line-length=120 — дозволяємо рядки до 120 символів
+      # --exclude — ігноруємо міграції і venv
+      - name: Lint with flake8
+        run: |
+          flake8 . \
+            --max-line-length=120 \
+            --exclude=migrations,.venv,staticfiles \
+            --extend-ignore=E501,W503 \
+            --count
+        continue-on-error: true  # не зупиняємо pipeline якщо є стилістичні зауваження
+
+      # Крок 5: запускаємо тести з coverage
+      - name: Run tests with coverage
+        env:
+          # Використовуємо SQLite в тестах — PostgreSQL тут не потрібен
+          DJANGO_SETTINGS_MODULE: shop_project.settings
+          SECRET_KEY: test-secret-key-for-ci-only
+        run: |
+          coverage run manage.py test shop orders accounts cart promocode reviews
+          coverage report --fail-under=60
+          coverage xml   # генеруємо XML звіт для badge
+
+      # Крок 6: завантажуємо звіт покриття на Codecov (безкоштовний сервіс)
+      # Codecov показує красивий badge і графіки покриття
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false  # не зупиняємо якщо Codecov недоступний
+        continue-on-error: true

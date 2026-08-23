@@ -1,459 +1,203 @@
 {% extends "base.html" %}
 
-{% block title %}{% if selected_category %}{{ selected_category.name }}{% else %}Каталог знахідок{% endif %} — Rare Find{% endblock %}
+{% block title %}{% if selected_category %}{{ selected_category.name }}{% else %}Каталог товарів{% endif %}
+{% block extra_js %}
+<script>
+// AJAX пошук з автодоповненням
+// Принцип: при кожному введенні символу відправляємо запит на сервер
+// і показуємо результати у dropdown без перезавантаження сторінки
 
-{% block extra_css %}
-/* ══════════════════════════════════════════════
-   PRODUCT LIST — UNIQUE DESIGN
-   ══════════════════════════════════════════════ */
+const searchInput = document.getElementById('search-input');
+const dropdown    = document.getElementById('search-dropdown');
+let searchTimer;  // таймер для debounce
 
-/* Hero section on main page */
-.rf-hero {
-    text-align: center;
-    padding: 3rem 0 2rem;
-    position: relative;
-}
-.rf-hero h1 {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: 2.2rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--c-accent), var(--c-accent-lt), var(--c-purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-}
-.rf-hero p {
-    color: var(--c-muted);
-    font-size: 0.95rem;
-    max-width: 500px;
-    margin: 0 auto;
-}
+searchInput.addEventListener('input', function() {
+    const query = this.value.trim();
 
-/* Category sidebar */
-.rf-sidebar {
-    position: sticky;
-    top: 80px;
-}
-.rf-cat-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-.rf-cat-list li {
-    margin-bottom: 2px;
-}
-.rf-cat-link {
-    display: block;
-    padding: 8px 16px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--c-muted) !important;
-    border-radius: var(--radius);
-    border-left: 2px solid transparent;
-    transition: all var(--transition);
-}
-.rf-cat-link:hover {
-    color: var(--c-text-h) !important;
-    background: rgba(100,200,255,0.05);
-    border-left-color: var(--c-accent);
-}
-.rf-cat-link.active {
-    color: var(--c-accent) !important;
-    background: rgba(100,200,255,0.08);
-    border-left-color: var(--c-accent);
-    font-weight: 600;
-}
-.rf-cat-child {
-    padding-left: 28px;
-    font-size: 0.8rem;
-}
+    // Debounce: чекаємо 300мс після останнього символу перш ніж відправити запит.
+    // Без цього запит летів би на кожен натиснутий символ — забагато.
+    clearTimeout(searchTimer);
 
-/* Search bar */
-.rf-search-wrap {
-    position: relative;
-    max-width: 400px;
-    margin: 0 auto 2rem;
-}
-.rf-search-wrap input {
-    width: 100%;
-    padding: 12px 20px 12px 44px;
-    border-radius: 30px;
-    border: 1px solid var(--c-border);
-    background: var(--c-surface);
-    color: var(--c-text-h);
-    font-size: 0.9rem;
-    transition: all var(--transition);
-}
-.rf-search-wrap input:focus {
-    border-color: var(--c-accent);
-    box-shadow: 0 0 0 3px rgba(100,200,255,0.12);
-    outline: none;
-}
-.rf-search-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--c-muted);
-    font-size: 1rem;
-}
+    if (query.length < 2) {
+        dropdown.style.display = 'none';
+        return;
+    }
 
-/* Sort dropdown */
-.rf-sort-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-}
-.rf-sort-bar label {
-    font-size: 0.78rem;
-    color: var(--c-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 600;
-}
-.rf-sort-select {
-    padding: 6px 14px;
-    border-radius: var(--radius);
-    border: 1px solid var(--c-border);
-    background: var(--c-surface);
-    color: var(--c-text-h);
-    font-size: 0.82rem;
-    cursor: pointer;
-    transition: all var(--transition);
-}
-.rf-sort-select:focus {
-    border-color: var(--c-accent);
-    outline: none;
-}
+    searchTimer = setTimeout(() => {
+        // fetch — асинхронний HTTP запит без перезавантаження сторінки
+        fetch(`{% url 'shop:search_autocomplete' %}?q=${encodeURIComponent(query)}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.results.length === 0) {
+                    dropdown.style.display = 'none';
+                    return;
+                }
 
-/* ══════════════════════════════════════════════
-   PRODUCT CARDS
-   ══════════════════════════════════════════════ */
-.rf-product-card {
-    background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease, border-color 0.4s ease;
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-.rf-product-card:hover {
-    transform: translateY(-6px);
-    border-color: var(--c-border-h);
-}
+                // Будуємо HTML для кожного результату
+                dropdown.innerHTML = data.results.map(item => `
+                    <a href="${item.url}"
+                       style="display:flex;justify-content:space-between;align-items:center;
+                              padding:10px 14px;color:var(--c-text-h);text-decoration:none;
+                              border-bottom:1px solid var(--c-border);transition:background 0.15s;"
+                       onmouseover="this.style.background='rgba(201,168,76,0.08)'"
+                       onmouseout="this.style.background=''">
+                        <div>
+                            <div style="font-weight:500;">${item.name}</div>
+                            <div style="font-size:0.75rem;color:var(--c-muted);">${item.category}</div>
+                        </div>
+                        <div style="color:var(--c-gold);font-weight:600;font-size:0.88rem;">${item.price} грн</div>
+                    </a>
+                `).join('');
 
-/* Image area */
-.rf-product-img {
-    height: 220px;
-    overflow: hidden;
-    position: relative;
-    background: var(--c-surface2);
-}
-.rf-product-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s ease, filter 0.6s ease;
-}
-.rf-product-card:hover .rf-product-img img {
-    transform: scale(1.05);
-}
+                dropdown.style.display = 'block';
+            });
+    }, 300);
+});
 
-/* No-photo placeholder */
-.rf-no-photo {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--c-muted);
-    font-size: 0.85rem;
-    background: linear-gradient(135deg, var(--c-surface), var(--c-surface2));
-}
-
-/* Rarity badge on image */
-.rf-card-rarity {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 5;
-}
-
-/* Mysterious badge on image */
-.rf-mystery-badge {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    z-index: 5;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 20px;
-    background: rgba(179,136,255,0.15);
-    color: var(--c-purple);
-    border: 1px solid rgba(179,136,255,0.35);
-    animation: mysteryBadgePulse 2s ease-in-out infinite;
-}
-@keyframes mysteryBadgePulse {
-    0%, 100% { box-shadow: 0 0 8px rgba(179,136,255,0.2); }
-    50% { box-shadow: 0 0 16px rgba(179,136,255,0.4); }
-}
-
-/* Card body */
-.rf-product-body {
-    padding: 1.2rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-.rf-product-name {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--c-text-h);
-    margin-bottom: 4px;
-    line-height: 1.3;
-}
-.rf-product-cat {
-    font-size: 0.75rem;
-    color: var(--c-muted);
-    margin-bottom: 12px;
-}
-.rf-product-price {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--c-accent);
-    margin-top: auto;
-    margin-bottom: 12px;
-}
-.rf-product-btn {
-    display: block;
-    text-align: center;
-    padding: 9px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: #05080a;
-    background: linear-gradient(135deg, var(--c-accent), var(--c-accent-lt));
-    border: none;
-    border-radius: var(--radius);
-    transition: all var(--transition);
-    cursor: pointer;
-    text-decoration: none !important;
-}
-.rf-product-btn:hover {
-    background: linear-gradient(135deg, var(--c-accent-lt), #c0f0ff);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(100,200,255,0.2);
-    color: #05080a;
-}
-
-/* Mysterious card special styling */
-.rf-product-card.mysterious .rf-product-name {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-}
-.rf-product-card.mysterious .rf-product-btn {
-    background: linear-gradient(135deg, var(--c-purple-dk), var(--c-purple));
-}
-.rf-product-card.mysterious .rf-product-btn:hover {
-    background: linear-gradient(135deg, var(--c-purple), #d0b0ff);
-    box-shadow: 0 4px 16px rgba(179,136,255,0.2);
-}
-.rf-product-card.mysterious .rf-product-price {
-    color: var(--c-purple);
-}
-
-/* ── Pagination ── */
-.rf-pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    margin-top: 2.5rem;
-}
-.rf-page-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 36px;
-    height: 36px;
-    padding: 0 10px;
-    border-radius: var(--radius);
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--c-muted);
-    border: 1px solid var(--c-border);
-    background: transparent;
-    transition: all var(--transition);
-    text-decoration: none !important;
-}
-.rf-page-link:hover {
-    color: var(--c-text-h);
-    border-color: var(--c-accent);
-    background: rgba(100,200,255,0.06);
-}
-.rf-page-link.active {
-    color: #05080a;
-    background: var(--c-accent);
-    border-color: var(--c-accent);
-    font-weight: 700;
-}
-
-/* Empty state */
-.rf-empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    color: var(--c-muted);
-}
-.rf-empty-state .rf-empty-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
+// Закриваємо dropdown якщо клікнули поза ним
+document.addEventListener('click', function(e) {
+    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}
 {% endblock %}
 
 {% block content %}
 
-{% if not selected_category %}
-<!-- Hero only on main page -->
-<div class="rf-hero">
-    <h1>Rare Find</h1>
-    <p>Відкрий незвичайне. Знайди те, чого не буває. Кожна знахідка — маленька пригода.</p>
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="my-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">Головна</a></li>
+    {% if selected_category %}
+      {% if selected_category.parent %}
+        <li class="breadcrumb-item">
+          <a href="{{ selected_category.parent.get_absolute_url }}">{{ selected_category.parent.name }}</a>
+        </li>
+      {% endif %}
+      <li class="breadcrumb-item active" aria-current="page">{{ selected_category.name }}</li>
+    {% else %}
+      <li class="breadcrumb-item active" aria-current="page">Всі товари</li>
+    {% endif %}
+  </ol>
+</nav>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form method="get" action="" class="d-flex">
+            <div class="position-relative flex-grow-1 me-2">
+                <input class="form-control" type="search" name="q"
+                       id="search-input"
+                       placeholder="Пошук товарів..."
+                       value="{{ query }}"
+                       autocomplete="off">
+                <!-- Dropdown для автодоповнення — JavaScript заповнить його -->
+                <div id="search-dropdown"
+                     style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;
+                            background:var(--c-surface);border:1px solid var(--c-border);
+                            border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.4);
+                            max-height:320px;overflow-y:auto;">
+                </div>
+            </div>
+            <button class="btn btn-outline-success" type="submit">Шукати</button>
+        </form>
+    </div>
 </div>
+
+
+{% if featured_products %}
+<section class="mb-5">
+    <h2 class="cit-accent-line mb-4" style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--c-gold-lt);">Хіти продажів</h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        {% for product in featured_products %}
+        <div class="col">
+            <div class="card h-100 position-relative" style="border-color:rgba(201,168,76,0.3);">
+                <span class="position-absolute top-0 end-0 m-2 cit-rarity cit-rarity-legend">Хіт</span>
+                {% with product.images.all|first as img %}
+                    {% if img %}<img src="{{ img.image.url }}" class="card-img-top" style="height:180px;object-fit:cover;" alt="{{ product.name }}">{% endif %}
+                {% endwith %}
+                <div class="card-body">
+                    <h6 class="card-title" style="color:var(--c-text-h);">{{ product.name }}</h6>
+                    <p class="card-text" style="color:var(--c-gold);font-weight:600;">{{ product.price }} грн</p>
+                    <a href="{{ product.get_absolute_url }}" class="btn btn-cit-outline btn-sm w-100">Детальніше</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
 {% endif %}
-
-<!-- Search -->
-<div class="rf-search-wrap">
-    <form method="get" action="">
-        <span class="rf-search-icon">🔍</span>
-        <input type="search" name="q" placeholder="Шукати серед знахідок..." value="{{ query|default:'' }}">
-    </form>
-</div>
-
 <div class="row">
-    <!-- Sidebar -->
-    <aside class="col-md-3 mb-4">
-        <div class="rf-sidebar">
-            <h6 style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--c-muted); margin-bottom:12px; font-weight:600;">Категорії</h6>
-            <ul class="rf-cat-list">
-                <li>
-                    <a href="{% url 'shop:product_list' %}" class="rf-cat-link {% if not selected_category %}active{% endif %}">
-                        ✦ Усі знахідки
-                    </a>
-                </li>
-                {% for category in categories %}
-                <li>
-                    <a href="{% url 'shop:product_list_by_category' category.id %}"
-                       class="rf-cat-link {% if selected_category.id == category.id %}active{% endif %}">
-                        {{ category.name }}
-                    </a>
-                    {% with children=category.get_children %}
-                        {% for child in children %}
-                        <a href="{% url 'shop:product_list_by_category' child.id %}"
-                           class="rf-cat-link rf-cat-child {% if selected_category.id == child.id %}active{% endif %}">
-                            {{ child.name }}
+    <aside class="col-md-3">
+        <h5>Категорії</h5>
+        <div class="list-group mb-3">
+            <a href="{% url 'shop:product_list' %}" class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}">
+                Всі товари
+            </a>
+            {% for category in categories %}
+                <a href="{% url 'shop:product_list_by_category' category.id %}" 
+                   class="list-group-item list-group-item-action fw-bold {% if selected_category.id == category.id %}active{% endif %}">
+                    {{ category.name }}
+                </a>
+                {% with children=category.get_children %}
+                    {% for child in children %}
+                        <a href="{% url 'shop:product_list_by_category' child.id %}" 
+                           class="list-group-item list-group-item-action ps-4 text-muted {% if selected_category.id == child.id %}active text-white{% endif %}">
+                            └ {{ child.name }}
                         </a>
-                        {% endfor %}
-                    {% endwith %}
-                </li>
-                {% endfor %}
-            </ul>
+                    {% endfor %}
+                {% endwith %}
+            {% endfor %}
         </div>
     </aside>
 
-    <!-- Products grid -->
     <div class="col-md-9">
-        <div class="rf-sort-bar">
-            <h2 style="font-family:'Cinzel Decorative',serif; font-size:1.3rem; margin:0;">
-                {% if selected_category %}{{ selected_category.name }}{% else %}Усі знахідки{% endif %}
-            </h2>
-            <div>
-                <label style="margin-right:6px;">Сортувати:</label>
-                <select class="rf-sort-select" onchange="window.location.href='?sort='+this.value+'{% if query %}&q={{ query }}{% endif %}'">
-                    <option value="" {% if not sort %}selected{% endif %}>За замовчуванням</option>
-                    <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Ціна ↑</option>
-                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Ціна ↓</option>
-                    <option value="name" {% if sort == 'name' %}selected{% endif %}>Назва А-Я</option>
-                </select>
-            </div>
-        </div>
-
+        <h1 class="mb-4">
+            {% if selected_category %}{{ selected_category.name }}{% else %}Каталог товарів{% endif %}
+        </h1>
+        
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
             {% for product in products %}
                 <div class="col">
-                    <div class="rf-product-card rf-levitate {% if product.is_mysterious %}mysterious{% endif %} {% if product.rarity != 'common' %}rf-glow-{{ product.rarity }}{% endif %}">
-                        <div class="rf-product-img {% if product.is_mysterious %}rf-mystery-img-wrap{% endif %}">
-                            {% with product.images.all|first as main_image %}
-                                {% if main_image %}
-                                    <img src="{{ main_image.image.url }}" alt="{{ product.name }}">
-                                {% else %}
-                                    <div class="rf-no-photo">
-                                        {% if product.is_mysterious %}
-                                            <span style="font-size:2.5rem; opacity:0.4;">🔮</span>
-                                        {% else %}
-                                            Немає фото
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endwith %}
-
-                            {% if product.is_mysterious %}
-                            <div class="rf-mystery-overlay">✦</div>
-                            <span class="rf-mystery-badge">Загадка</span>
+                    <div class="card h-100">
+                        {% with product.images.all|first as main_image %}
+                            {% if main_image %}
+                                <img src="{{ main_image.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary text-white text-center py-5">Немає фото</div>
                             {% endif %}
-
-                            {% if product.rarity != 'common' %}
-                            <div class="rf-card-rarity">
-                                <span class="rf-rarity rf-rarity-{{ product.rarity }}">
-                                    {% if product.rarity == 'rare' %}Рідкісний
-                                    {% elif product.rarity == 'epic' %}Епічний
-                                    {% elif product.rarity == 'legend' %}Легендарний
-                                    {% endif %}
-                                </span>
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="rf-product-body">
-                            <div class="rf-product-name">{{ product.name }}</div>
-                            <div class="rf-product-cat">{{ product.category.name }}</div>
-                            <div class="rf-product-price">{{ product.price }} ₴</div>
-                            <a href="{% url 'shop:product_detail' product.id product.slug %}" class="rf-product-btn">
-                                {% if product.is_mysterious %}Розкрити таємницю{% else %}Детальніше{% endif %}
-                            </a>
+                        {% endwith %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted small">{{ product.category.name }}</p>
+                            <p class="fw-bold fs-5 mt-auto">{{ product.price }} грн</p>
+                            <a href="{% url 'shop:product_detail' product.id product.slug %}" class="btn btn-primary w-100">Детальніше</a>
                         </div>
                     </div>
                 </div>
             {% empty %}
                 <div class="col-12">
-                    <div class="rf-empty-state">
-                        <div class="rf-empty-icon">🔍</div>
-                        <p>Знахідок за вашим запитом не виявлено. Спробуйте інші критерії пошуку.</p>
-                    </div>
+                    <p class="alert alert-warning">Товарів за вашим запитом не знайдено.</p>
                 </div>
             {% endfor %}
         </div>
 
-        <!-- Pagination -->
         {% if products.has_other_pages %}
-            <nav class="rf-pagination">
-                {% if products.has_previous %}
-                    <a class="rf-page-link" href="?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">«</a>
-                {% endif %}
-                {% for num in products.paginator.page_range %}
-                    <a class="rf-page-link {% if products.number == num %}active{% endif %}"
-                       href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
-                {% endfor %}
-                {% if products.has_next %}
-                    <a class="rf-page-link" href="?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">»</a>
-                {% endif %}
+            <nav class="mt-4">
+                <ul class="pagination">
+                    {% if products.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">&laquo;</a></li>
+                    {% endif %}
+                    {% for num in products.paginator.page_range %}
+                        <li class="page-item {% if products.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endfor %}
+                    {% if products.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}">&raquo;</a></li>
+                    {% endif %}
+                </ul>
             </nav>
         {% endif %}
     </div>

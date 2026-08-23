@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 
 from .models import Category, Product
@@ -33,6 +34,15 @@ def product_list(request, category_id=None):
     elif sort == 'name':
         products = products.order_by('name')
 
+    featured_products = None
+    if not category_id and not query:
+        featured_products = (
+            Product.objects
+            .filter(is_featured=True)
+            .select_related('category')
+            .prefetch_related('images')[:4]
+        )
+
     paginator = Paginator(products, 9)
     page_number = request.GET.get('page')
     products_page = paginator.get_page(page_number)
@@ -41,6 +51,7 @@ def product_list(request, category_id=None):
         'selected_category': category,
         'categories': categories,
         'products': products_page,
+        'featured_products': featured_products,
         'query': query,
         'sort': sort,
     })
@@ -64,4 +75,47 @@ def product_detail(request, id, slug):
     request.session['recently_viewed'] = recently_viewed[:10]
     request.session.modified = True
 
-    return render(request, 'shop/product_detail.html', {'product': product})
+    from django.db.models import Avg
+    reviews = []
+    avg_rating = None
+    try:
+        from reviews.models import Review
+        reviews = Review.objects.filter(
+            product=product, is_approved=True
+        ).select_related('user').order_by('-created_at')
+        avg_rating = reviews.aggregate(avg=Avg('rating'))['avg']
+    except Exception:
+        pass
+
+    return render(request, 'shop/product_detail.html', {
+        'product': product,
+        'reviews': reviews,
+        'avg_rating': avg_rating,
+    })
+
+
+def search_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+
+    products = (
+        Product.objects
+        .filter(name__icontains=query)
+        .select_related('category')
+        [:8]
+    )
+
+    results = [
+        {
+            'id': p.id,
+            'name': p.name,
+            'price': str(p.price),
+            'category': p.category.name,
+            'url': p.get_absolute_url(),
+        }
+        for p in products
+    ]
+
+    return JsonResponse({'results': results})

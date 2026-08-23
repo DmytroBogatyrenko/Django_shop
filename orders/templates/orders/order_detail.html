@@ -66,5 +66,72 @@
   </div>
 </div>
 
-<a href="{% url 'orders:order_list' %}" class="btn btn-outline-secondary mt-3">&larr; До всіх замовлень</a>
+<!-- Timeline статусів замовлення -->
+<div class="cit-card mt-4 mb-3">
+    <h3 class="cit-accent-line mb-4" style="font-size:0.95rem;">Статус замовлення</h3>
+
+    {% with timeline=order.get_status_timeline %}
+        {% if order.status == 'cancelled' %}
+            <div class="cit-alert cit-alert-error">Замовлення скасовано</div>
+        {% else %}
+            <div class="d-flex align-items-center gap-0 flex-wrap">
+                {% for step in timeline %}
+                    <div class="d-flex align-items-center">
+                        <div style="text-align:center;min-width:90px;">
+                            <div style="width:32px;height:32px;border-radius:50%;margin:0 auto;
+                                        display:flex;align-items:center;justify-content:center;
+                                        font-size:0.75rem;font-weight:700;
+                                        {% if step.done %}
+                                            background:var(--c-gold);color:#060d08;
+                                        {% else %}
+                                            background:var(--c-surface2);color:var(--c-muted);
+                                            border:1px solid var(--c-border);
+                                        {% endif %}">
+                                {{ forloop.counter }}
+                            </div>
+                            <div style="font-size:0.72rem;margin-top:4px;
+                                        color:{% if step.done %}var(--c-gold-lt){% else %}var(--c-muted){% endif %};">
+                                {{ step.label }}
+                            </div>
+                        </div>
+                        {% if not forloop.last %}
+                            <div style="height:1px;width:40px;
+                                        background:{% if step.done %}var(--c-gold){% else %}var(--c-border){% endif %};
+                                        margin-bottom:20px;">
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if order.estimated_delivery and order.status != 'cancelled' %}
+            <p style="color:var(--c-muted);font-size:0.8rem;margin-top:12px;">
+                Очікувана дата доставки:
+                <strong style="color:var(--c-text);">
+                    {{ order.estimated_delivery|date:"d.m.Y" }}
+                </strong>
+            </p>
+        {% endif %}
+    {% endwith %}
+</div>
+
+<!-- Кнопки дій -->
+<div class="d-flex flex-wrap gap-3 mt-3">
+    <a href="{% url 'orders:order_list' %}" class="btn btn-cit-outline">
+        &larr; До всіх замовлень
+    </a>
+    <a href="{% url 'orders:download_invoice' order.id %}" class="btn btn-cit-primary">
+        Завантажити рахунок PDF
+    </a>
+    {% if order.can_be_cancelled %}
+        <form action="{% url 'orders:cancel_order' order.id %}" method="post"
+              onsubmit="return confirm('Скасувати замовлення #{{ order.id }}?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-cit-danger">
+                Скасувати замовлення
+            </button>
+        </form>
+    {% endif %}
+</div>
 {% endblock %}

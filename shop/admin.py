@@ -5,7 +5,8 @@ from .models import Category, Product, ProductImage
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
-    extra = 1 
+    extra = 1
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -13,17 +14,14 @@ class CategoryAdmin(admin.ModelAdmin):
     list_filter = ["parent"]
     search_fields = ["name"]
 
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name", "price", "category", "created_at"]
-    list_filter = ["category"]
+    list_display = ["name", "price", "category", "is_featured", "created_at"]
+    list_filter = ["category", "is_featured"]
     search_fields = ["name"]
+    list_editable = ["is_featured"]
     prepopulated_fields = {"slug": ("name",)}
+
     inlines = [ProductImageInline]
-    list_per_page=5
-    # inlines = ['price']
-    
-# class Price_inline(admin.TabularInline):
-#     model = Product
-    
-    
+    list_per_page = 20
