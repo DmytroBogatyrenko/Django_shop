@@ -22,7 +22,7 @@ else:
 python manage.py shell -c "
 from django.contrib.sites.models import Site
 site, created = Site.objects.get_or_create(id=1)
-site.domain = 'djangoshop-sg08.onrender.com'
+site.domain = 'django-shop-backend.onrender.com'
 site.name = 'Citadel Shop'
 site.save()
 print('Site налаштовано:', site.domain)
