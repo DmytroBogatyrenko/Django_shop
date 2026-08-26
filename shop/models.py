@@ -50,6 +50,22 @@ class Product(models.Model):
 
     is_featured = models.BooleanField("хіт продажів", default=False)
 
+    description = models.TextField("опис", blank=True, default="")
+
+    is_mysterious = models.BooleanField("загадковий товар", default=False)
+
+    rarity = models.CharField(
+        "рідкісність",
+        max_length=10,
+        choices=[
+            ('common', 'Звичайний'),
+            ('rare', 'Рідкісний'),
+            ('epic', 'Епічний'),
+            ('legend', 'Легендарний'),
+        ],
+        default='common',
+    )
+
     created_at = models.DateTimeField("дата створення", auto_now_add=True)
     modified_at = models.DateTimeField("дата зміни", auto_now=True)
 

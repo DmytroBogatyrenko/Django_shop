@@ -17,11 +17,40 @@ def cart_add(request, product_id):
 
 
 @require_POST
+def cart_update(request, product_id):
+    """Оновити кількість товару в скарбниці; кількість 0 означає видалення."""
+    cart = Cart(request)
+    product = get_object_or_404(Product, id=product_id)
+
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+    except (TypeError, ValueError):
+        quantity = 1
+
+    if quantity <= 0:
+        cart.remove(product)
+        messages.success(request, f'«{product.name}» видалено зі скарбниці.')
+    else:
+        cart.add(product=product, quantity=quantity, override_quantity=True)
+        messages.success(request, 'Скарбницю оновлено.')
+
+    return redirect('cart:cart_detail')
+
+
+@require_POST
 def cart_remove(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     cart.remove(product)
     messages.success(request, f'«{product.name}» видалено зі скарбниці.')
+    return redirect('cart:cart_detail')
+
+
+@require_POST
+def cart_clear(request):
+    """Повністю очистити скарбницю."""
+    Cart(request).clear()
+    messages.success(request, 'Скарбницю очищено.')
     return redirect('cart:cart_detail')
 
 

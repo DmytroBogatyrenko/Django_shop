@@ -25,7 +25,14 @@
                         </a>
                     </td>
                     <td>{{ item.price }} грн</td>
-                    <td>{{ item.quantity }}</td>
+                    <td>
+                        <form action="{% url 'cart:cart_update' item.product.id %}" method="post" class="d-flex gap-1">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="0"
+                                   class="form-control form-control-sm" style="width: 70px;">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Оновити</button>
+                        </form>
+                    </td>
                     <td>{{ item.total_price }} грн</td>
                     <td>
                         <form action="{% url 'cart:cart_remove' item.product.id %}" method="post">
@@ -47,9 +54,15 @@
         <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary">
             &larr; Продовжити покупки
         </a>
-        <a href="{% url 'orders:checkout' %}" class="btn btn-success btn-lg">
-            Оформити замовлення
-        </a>
+        <div class="d-flex gap-2">
+            <form action="{% url 'cart:cart_clear' %}" method="post" onsubmit="return confirm('Очистити скарбницю?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger">Очистити</button>
+            </form>
+            <a href="{% url 'orders:checkout' %}" class="btn btn-success btn-lg">
+                Оформити замовлення
+            </a>
+        </div>
     </div>
 
 {% else %}

@@ -9,7 +9,8 @@ from .models import UserProfile
 
 
 @ratelimit(key='header:x-forwarded-for', rate='10/m', method='POST', block=True)
-def register_view(request):
+def signup(request):
+    """Реєстрація нового користувача з автоматичним входом."""
     if request.user.is_authenticated:
         return redirect('accounts:profile')
 
@@ -23,24 +24,17 @@ def register_view(request):
     else:
         form = CustomUserCreationForm()
 
-    return render(request, 'accounts/register.html', {'form': form})
-
-
-@ratelimit(key='header:x-forwarded-for', rate='20/m', method='POST', block=True)
-def login_view(request):
-    from django.contrib.auth.views import LoginView
-    return LoginView.as_view(
-        template_name='accounts/login.html',
-    )(request)
+    return render(request, 'accounts/signup.html', {'form': form})
 
 
 @login_required
-def profile_view(request):
-    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+def profile(request):
+    """Профіль користувача: контактні дані та можливість їх редагування."""
+    user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        p_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
 
         if u_form.is_valid() and p_form.is_valid():
             u_form.save()
@@ -51,10 +45,10 @@ def profile_view(request):
             messages.error(request, 'Перевірте правильність заповнення форми.')
     else:
         u_form = UserUpdateForm(instance=request.user)
-        p_form = UserProfileForm(instance=profile)
+        p_form = UserProfileForm(instance=user_profile)
 
     return render(request, 'accounts/profile.html', {
-        'profile': profile,
+        'profile': user_profile,
         'u_form': u_form,
         'p_form': p_form,
     })
