@@ -16,6 +16,7 @@ class CartViewTest(TestCase):
             category=category,
             price='2500.00',
             slug='mech-doli',
+            stock=10,
         )
         self.add_url    = reverse('cart:cart_add',    args=[self.product.id])
         self.remove_url = reverse('cart:cart_remove', args=[self.product.id])

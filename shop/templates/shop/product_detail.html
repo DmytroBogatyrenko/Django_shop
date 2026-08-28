@@ -35,25 +35,21 @@
     </div>
 
     <div class="col-md-6">
-        <!-- Бейдж featured -->
+        <span class="cit-rarity cit-rarity-{{ product.rarity }} mb-2 d-inline-block">{{ product.get_rarity_display }}</span>
         {% if product.is_featured %}
-            <span class="cit-rarity cit-rarity-legend mb-2 d-inline-block">Хіт продажів</span>
+            <span class="cit-rarity cit-rarity-legend mb-2 d-inline-block ms-1">Хіт продажів</span>
         {% endif %}
 
         <h1 style="font-family:'Cinzel',serif;font-size:1.6rem;">{{ product.name }}</h1>
         <p style="color:var(--c-muted);font-size:0.88rem;">{{ product.category.name }}</p>
 
-        <!-- Рейтинг зірочками якщо є відгуки -->
         {% if avg_rating %}
             <div class="mb-2" style="color:var(--c-gold);">
-                {% with avg_rating|floatformat:0 as stars %}
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= stars|add:"0" %}★{% else %}☆{% endif %}
-                    {% endfor %}
-                {% endwith %}
+                {% for i in "12345" %}
+                    {% if forloop.counter <= avg_rating_int %}★{% else %}☆{% endif %}
+                {% endfor %}
                 <span style="color:var(--c-muted);font-size:0.82rem;margin-left:6px;">
-                    {{ avg_rating|floatformat:1 }} / 5
-                    ({{ reviews|length }} відгук{% if reviews|length != 1 %}ів{% endif %})
+                    {{ avg_rating }} / 5 ({{ reviews.paginator.count }} відгук{% if reviews.paginator.count != 1 %}ів{% endif %})
                 </span>
             </div>
         {% endif %}
@@ -62,7 +58,6 @@
             {{ product.price }} грн
         </p>
 
-        <!-- Кнопка додати в кошик -->
         <form action="{% url 'cart:cart_add' product.id %}" method="post" class="mt-3">
             {% csrf_token %}
             <div class="d-flex gap-3 align-items-center">
@@ -78,49 +73,62 @@
 
 <!-- Відгуки -->
 <div class="mt-5">
-    <h2 class="cit-accent-line mb-4"
-        style="font-family:'Cinzel',serif;font-size:1.1rem;">
-        Відгуки покупців
-    </h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="cit-accent-line m-0" style="font-family:'Cinzel',serif;font-size:1.1rem;">
+            Відгуки покупців
+        </h2>
+        <!-- Сортування відгуків -->
+        <div class="d-flex align-items-center gap-2">
+            <span style="font-size:0.85rem;color:var(--c-muted);">Сортувати:</span>
+            <a href="?review_sort=newest" class="btn btn-sm {% if review_sort == 'newest' %}btn-cit-primary{% else %}btn-cit-outline{% endif %}">Спочатку нові</a>
+            <a href="?review_sort=helpful" class="btn btn-sm {% if review_sort == 'helpful' %}btn-cit-primary{% else %}btn-cit-outline{% endif %}">Корисні</a>
+        </div>
+    </div>
 
     <!-- Форма додавання відгуку -->
     {% if user.is_authenticated %}
-        <div class="cit-card mb-4">
-            <h3 style="font-size:0.95rem;margin-bottom:1rem;">Залишити відгук</h3>
-            <form action="{% url 'reviews:add_review' product.id %}" method="post">
-                {% csrf_token %}
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Рейтинг</label>
-                        <select name="rating" class="form-select">
-                            <option value="5">5 ★★★★★</option>
-                            <option value="4">4 ★★★★☆</option>
-                            <option value="3">3 ★★★☆☆</option>
-                            <option value="2">2 ★★☆☆☆</option>
-                            <option value="1">1 ★☆☆☆☆</option>
-                        </select>
+        {% if can_review %}
+            <div class="cit-card mb-4">
+                <h3 style="font-size:0.95rem;margin-bottom:1rem;">Залишити відгук про придбаний товар</h3>
+                <form action="{% url 'reviews:add_review' product.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Рейтинг</label>
+                            <select name="rating" class="form-select">
+                                <option value="5">5 ★★★★★</option>
+                                <option value="4">4 ★★★★☆</option>
+                                <option value="3">3 ★★★☆☆</option>
+                                <option value="2">2 ★★☆☆☆</option>
+                                <option value="1">1 ★☆☆☆☆</option>
+                            </select>
+                        </div>
+                        <div class="col-md-9">
+                            <label class="form-label">Ваш відгук</label>
+                            <textarea name="text" class="form-control" rows="3" required
+                                      placeholder="Поділіться враженнями про цей товар..."></textarea>
+                        </div>
                     </div>
-                    <div class="col-md-9">
-                        <label class="form-label">Ваш відгук</label>
-                        <textarea name="text" class="form-control" rows="3"
-                                  placeholder="Поділіться враженнями про цей товар..."></textarea>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-cit-primary mt-3">
-                    Відправити відгук
-                </button>
-                <p style="color:var(--c-muted);font-size:0.75rem;margin-top:0.5rem;">
-                    Відгук зʼявиться після модерації.
-                    {% if user.is_authenticated %}
-                        Позначка "підтверджена покупка" встановлюється автоматично.
-                    {% endif %}
-                </p>
-            </form>
-        </div>
+                    <button type="submit" class="btn btn-cit-primary mt-3">
+                        Відправити відгук
+                    </button>
+                    <p style="color:var(--c-muted);font-size:0.75rem;margin-top:0.5rem;">
+                        Позначка "Підтверджена покупка" встановлюється автоматично.
+                    </p>
+                </form>
+            </div>
+        {% elif has_reviewed %}
+            <div class="cit-alert cit-alert-info mb-4">
+                Ви вже залишили відгук про цей товар. Дякуємо за вашу думку!
+            </div>
+        {% else %}
+            <div class="cit-alert cit-alert-info mb-4">
+                Залишати відгуки можуть лише покупці, які придбали цей товар.
+            </div>
+        {% endif %}
     {% else %}
         <div class="cit-alert cit-alert-info mb-4">
-            <a href="{% url 'accounts:login' %}">Увійдіть</a>,
-            щоб залишити відгук.
+            <a href="{% url 'accounts:login' %}">Увійдіть</a>, щоб залишити відгук після покупки.
         </div>
     {% endif %}
 
@@ -142,14 +150,48 @@
                     </div>
                 </div>
                 <p style="margin:0.75rem 0 0.25rem;color:var(--c-text);">{{ review.text }}</p>
-                <small style="color:var(--c-muted);">
-                    {{ review.created_at|date:"d.m.Y" }}
-                </small>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <small style="color:var(--c-muted);">
+                        {{ review.created_at|date:"d.m.Y" }}
+                    </small>
+                    <div class="d-flex gap-2 align-items-center">
+                        <small style="color:var(--c-muted);">Корисний відгук?</small>
+                        <form action="{% url 'reviews:vote_review' review.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="vote_type" value="helpful">
+                            <button type="submit" class="btn btn-sm btn-cit-outline py-0 px-2">👍 {{ review.helpful_votes }}</button>
+                        </form>
+                        <form action="{% url 'reviews:vote_review' review.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="vote_type" value="unhelpful">
+                            <button type="submit" class="btn btn-sm btn-cit-outline py-0 px-2">👎 {{ review.unhelpful_votes }}</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         {% endfor %}
+
+        <!-- Пагінація відгуків -->
+        {% if reviews.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if reviews.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?review_page={{ reviews.previous_page_number }}&review_sort={{ review_sort }}">&laquo;</a></li>
+                    {% endif %}
+                    {% for p in reviews.paginator.page_range %}
+                        <li class="page-item {% if reviews.number == p %}active{% endif %}">
+                            <a class="page-link" href="?review_page={{ p }}&review_sort={{ review_sort }}">{{ p }}</a>
+                        </li>
+                    {% endfor %}
+                    {% if reviews.has_next %}
+                        <li class="page-item"><a class="page-link" href="?review_page={{ reviews.next_page_number }}&review_sort={{ review_sort }}">&raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
     {% else %}
         <p style="color:var(--c-muted);">
-            Відгуків ще немає. Будьте першим!
+            Відгуків ще немає. Будьте першим покупцем, який залишить відгук!
         </p>
     {% endif %}
 </div>
@@ -157,8 +199,7 @@
 <!-- Нещодавно переглянуті -->
 {% if recently_viewed %}
     <div class="mt-5">
-        <h2 class="cit-accent-line mb-3"
-            style="font-family:'Cinzel',serif;font-size:1rem;">
+        <h2 class="cit-accent-line mb-3" style="font-family:'Cinzel',serif;font-size:1rem;">
             Нещодавно переглянуті
         </h2>
         <ul class="list-group" style="background:transparent;">
@@ -166,8 +207,7 @@
                 {% if p.id != product.id %}
                     <li class="list-group-item d-flex justify-content-between align-items-center"
                         style="background:var(--c-surface);border-color:var(--c-border);">
-                        <a href="{{ p.get_absolute_url }}"
-                           style="color:var(--c-text-h);text-decoration:none;">
+                        <a href="{{ p.get_absolute_url }}" style="color:var(--c-text-h);text-decoration:none;">
                             {{ p.name }}
                         </a>
                         <span style="color:var(--c-gold);font-weight:600;">{{ p.price }} грн</span>

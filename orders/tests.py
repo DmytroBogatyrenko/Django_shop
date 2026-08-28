@@ -21,7 +21,7 @@ class CheckoutViewTest(TestCase):
         category = Category.objects.create(name='Зілля')
         self.product = Product.objects.create(
             name='Зілля Сили', category=category,
-            price='350.00', slug='zillia-syly',
+            price='350.00', slug='zillia-syly', stock=10,
         )
 
     def test_checkout_redirects_if_not_logged_in(self):
@@ -44,14 +44,20 @@ class CheckoutViewTest(TestCase):
         self.client.login(username='testuser', password='testpass123')
         self.client.post(reverse('cart:cart_add', args=[self.product.id]), {'quantity': 2})
 
-        data = {
+        address_data = {
             'first_name': 'Артур', 'last_name': 'Пендрагон',
             'email': 'arthur@citadel.ua', 'phone': '+380991234567',
             'city': 'Камелот', 'address': 'вул. Лицарів, 1',
             'postal_code': '01000',
         }
-        response = self.client.post(reverse('orders:checkout'), data)
+        # Крок 1: адреса доставки.
+        response = self.client.post(reverse('orders:checkout'), address_data)
+        self.assertRedirects(response, reverse('orders:checkout_confirm'))
 
+        # Крок 2: спосіб оплати та підтвердження.
+        response = self.client.post(reverse('orders:checkout_confirm'), {
+            'payment_method': 'cash', 'notes': '',
+        })
         self.assertEqual(response.status_code, 302)
 
         order = Order.objects.filter(user=self.user).first()

@@ -13,9 +13,11 @@ def apply_promocode(request):
         return JsonResponse({'success': False, 'error': 'Введіть код промокоду'})
 
     try:
-        promocode = Promocode.objects.get(code__iexact=code)
-    except Promocode.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Промокод не знайдено'})
+        promocode = Promocode.objects.filter(code__iexact=code).first()
+        if not promocode:
+            return JsonResponse({'success': False, 'error': 'Промокод не знайдено'})
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Помилка перевірки промокоду'})
 
     if not promocode.is_valid():
         return JsonResponse({'success': False, 'error': 'Промокод прострочений або вичерпаний'})

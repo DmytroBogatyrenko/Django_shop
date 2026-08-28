@@ -6,35 +6,34 @@
     <title>{% block title %}Rare Find — Магазин Унікальних Знахідок{% endblock %}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* ── Токени ── */
+        /* ══════════════════════════════════════════════
+           ACTIVE THEORY INSPIRED CYBER-GLASS DESIGN SYSTEM
+           ══════════════════════════════════════════════ */
         :root {
-            --c-bg:       #05080a;
-            --c-surface:  #0a1118;
-            --c-surface2: #101c26;
-            --c-border:   rgba(100, 200, 255, 0.10);
-            --c-border-h: rgba(100, 200, 255, 0.30);
-            --c-accent:   #64c8ff;
-            --c-accent-lt:#a0e0ff;
-            --c-accent-dk:#2a6a8a;
-            --c-gold:     #c9a84c;
-            --c-gold-lt:  #e2c472;
-            --c-gold-dk:  #7a5e22;
-            --c-purple:   #b388ff;
-            --c-purple-dk:#6a3fbf;
-            --c-text:     #b8c8d8;
-            --c-text-h:   #e8f0f8;
-            --c-muted:    #556878;
-            --c-danger:   #7a2020;
-            --c-success:  #1e5c2a;
-            --radius:     8px;
-            --radius-lg:  16px;
-            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --c-bg:          #03070d;
+            --c-surface:     rgba(10, 17, 26, 0.75);
+            --c-surface2:    rgba(16, 28, 42, 0.85);
+            --c-border:      rgba(0, 240, 255, 0.15);
+            --c-border-h:    rgba(0, 240, 255, 0.45);
+            --c-accent:      #00f0ff;
+            --c-accent-lt:   #70f8ff;
+            --c-accent-dk:   #008b9b;
+            --c-gold:        #ffd700;
+            --c-gold-lt:     #ffe875;
+            --c-gold-dk:     #b89800;
+            --c-purple:      #b537ff;
+            --c-purple-dk:   #670aab;
+            --c-text:        #c8d6e5;
+            --c-text-h:      #ffffff;
+            --c-muted:       #647b91;
+            --radius:        12px;
+            --radius-lg:     24px;
+            --transition:    0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* ── Reset ── */
         * { box-sizing: border-box; }
         body {
             background-color: var(--c-bg);
@@ -46,73 +45,67 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* Animated background particles */
-        body::before {
-            content: '';
+        /* Ambient Particle Canvas */
+        #bg-canvas {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background:
-                radial-gradient(1px 1px at 10% 20%, rgba(100,200,255,0.3), transparent),
-                radial-gradient(1px 1px at 30% 80%, rgba(179,136,255,0.2), transparent),
-                radial-gradient(1px 1px at 50% 10%, rgba(201,168,76,0.25), transparent),
-                radial-gradient(1px 1px at 70% 60%, rgba(100,200,255,0.2), transparent),
-                radial-gradient(1px 1px at 90% 30%, rgba(179,136,255,0.15), transparent),
-                radial-gradient(1.5px 1.5px at 20% 50%, rgba(201,168,76,0.2), transparent),
-                radial-gradient(1px 1px at 60% 90%, rgba(100,200,255,0.15), transparent),
-                radial-gradient(1px 1px at 80% 10%, rgba(201,168,76,0.15), transparent);
-            animation: starDrift 30s linear infinite;
+            top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
             z-index: 0;
         }
-        @keyframes starDrift {
-            0%   { transform: translateY(0); }
-            100% { transform: translateY(-50px); }
-        }
-
-        /* Bootstrap overrides */
-        .bg-dark  { background-color: var(--c-surface) !important; }
-        .card     { background-color: var(--c-surface); border-color: var(--c-border); border-radius: var(--radius-lg); }
-        .form-control, .form-select {
-            background-color: var(--c-surface2);
-            border-color: var(--c-border);
-            color: var(--c-text-h);
-            border-radius: var(--radius);
-        }
-        .form-control:focus, .form-select:focus {
-            background-color: var(--c-surface2);
-            border-color: var(--c-accent);
-            color: var(--c-text-h);
-            box-shadow: 0 0 0 3px rgba(100, 200, 255, 0.12);
-        }
-        .form-control::placeholder { color: var(--c-muted); }
-        .form-label {
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--c-muted);
-            margin-bottom: 0.35rem;
-        }
-        a { color: var(--c-accent); text-decoration: none; transition: color var(--transition); }
-        a:hover { color: var(--c-accent-lt); }
-        h1, h2, h3, h4, h5, h6 { color: var(--c-text-h); }
 
         /* ══════════════════════════════════════════════
-           NAVBAR
+           PROMO RUNNING MARQUEE TAPE (Лента реклами)
+           ══════════════════════════════════════════════ */
+        .rf-marquee-bar {
+            background: linear-gradient(90deg, rgba(0, 240, 255, 0.12), rgba(181, 55, 255, 0.15), rgba(255, 215, 0, 0.12));
+            border-bottom: 1px solid var(--c-border);
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 7px 0;
+            position: relative;
+            z-index: 210;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .rf-marquee-track {
+            display: inline-flex;
+            gap: 2rem;
+            animation: marqueeRoll 28s linear infinite;
+            will-change: transform;
+        }
+        .rf-marquee-track span {
+            color: var(--c-accent-lt);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+        }
+        .rf-marquee-track .star {
+            color: var(--c-gold);
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+        }
+        @keyframes marqueeRoll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* ══════════════════════════════════════════════
+           NAVBAR WITH GLASSMORPHISM
            ══════════════════════════════════════════════ */
         .rf-navbar {
-            background: rgba(5, 8, 10, 0.92);
+            background: rgba(3, 7, 13, 0.85);
             border-bottom: 1px solid var(--c-border);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             position: sticky;
             top: 0;
             z-index: 200;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
         .rf-navbar .container {
-            height: 64px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -120,28 +113,30 @@
             position: relative;
         }
 
-        /* Nav links (left) */
         .rf-nav-left {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
         .rf-nav-link {
-            padding: 6px 14px;
-            font-size: 0.82rem;
+            padding: 8px 16px;
+            font-size: 0.85rem;
             font-weight: 500;
-            color: var(--c-muted);
+            color: var(--c-text);
             border-radius: var(--radius);
-            transition: color var(--transition), background var(--transition);
+            transition: all var(--transition);
             white-space: nowrap;
+            border: 1px solid transparent;
         }
         .rf-nav-link:hover {
             color: var(--c-text-h);
-            background: rgba(100,200,255,0.06);
+            background: rgba(0, 240, 255, 0.08);
+            border-color: var(--c-border);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
         }
 
         /* ══════════════════════════════════════════════
-           RADIAL LOGO MENU (center of navbar)
+           CENTER RADIAL ROTATING LOGO & FLOATING CLOUDS
            ══════════════════════════════════════════════ */
         .rf-radial-wrap {
             position: absolute;
@@ -149,522 +144,318 @@
             top: 50%;
             transform: translate(-50%, -50%);
             z-index: 300;
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
-        /* Invisible backing circle to bridge the hover gap between center and clouds */
-        .rf-radial-underlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: transparent;
-            z-index: 1;
-            pointer-events: auto;
-            transition: width 0.3s, height 0.3s;
-        }
-        .rf-radial-wrap:hover .rf-radial-underlay {
-            width: 380px;
-            height: 380px;
-        }
 
         .rf-radial-trigger {
-            width: 54px;
-            height: 54px;
+            width: 62px;
+            height: 62px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--c-accent-dk), var(--c-accent));
-            border: 2px solid rgba(100,200,255,0.4);
+            background: radial-gradient(circle at 30% 30%, #00f0ff, #670aab 70%, #03070d);
+            border: 2px solid var(--c-accent);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
-            box-shadow: 0 0 20px rgba(100,200,255,0.15), inset 0 0 12px rgba(255,255,255,0.1);
-            text-decoration: none !important;
             position: relative;
             z-index: 10;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.2);
+            text-decoration: none !important;
+            animation: emblemSpin 12s linear infinite;
         }
         .rf-radial-trigger:hover {
-            transform: rotate(360deg) scale(1.1);
-            box-shadow: 0 0 40px rgba(100,200,255,0.35), 0 0 80px rgba(100,200,255,0.15), inset 0 0 12px rgba(255,255,255,0.15);
+            animation-play-state: paused;
+            transform: scale(1.15) rotate(180deg);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.7), 0 0 90px rgba(181, 55, 255, 0.5);
         }
         .rf-radial-trigger span {
             font-family: 'Cinzel Decorative', serif;
-            font-size: 0.65rem;
+            font-size: 0.75rem;
             font-weight: 900;
-            color: #fff;
-            letter-spacing: 0.05em;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            color: #ffffff;
+            letter-spacing: 0.08em;
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.9);
             line-height: 1;
+            animation: counterSpin 12s linear infinite;
+        }
+        .rf-radial-trigger:hover span {
+            animation-play-state: paused;
         }
 
-        /* The floating brand name under the circle */
+        @keyframes emblemSpin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes counterSpin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+
         .rf-brand-label {
             position: absolute;
-            top: 62px;
+            top: 68px;
             left: 50%;
             transform: translateX(-50%);
             font-family: 'Cinzel Decorative', serif;
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             font-weight: 700;
-            letter-spacing: 0.25em;
+            letter-spacing: 0.3em;
             text-transform: uppercase;
-            color: var(--c-accent);
+            color: var(--c-accent-lt);
             white-space: nowrap;
             opacity: 0;
-            transition: opacity 0.3s ease 0.1s;
+            transition: opacity 0.3s ease;
             pointer-events: none;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
         }
         .rf-radial-wrap:hover .rf-brand-label {
             opacity: 1;
         }
 
-        /* Cloud bubbles (categories) - FLUFFY CLOUDS styling */
+        /* Floating Cloud Pills */
         .rf-cloud {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             pointer-events: none;
             opacity: 0;
-            transform: translate(-50%, -50%) scale(0.3);
-            transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
+            transform: translate(-50%, -50%) scale(0.2);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
             z-index: 5;
         }
         .rf-cloud a {
-            display: block;
-            padding: 10px 22px;
-            background: rgba(245, 249, 255, 0.96);
-            color: #0c151e !important;
+            display: inline-block;
+            padding: 8px 18px;
+            background: rgba(16, 28, 42, 0.9);
+            color: var(--c-accent-lt) !important;
             font-size: 0.8rem;
             font-weight: 600;
-            border: 1.5px solid rgba(255, 255, 255, 0.9);
-            border-radius: 30px 40px 30px 45px;
+            border: 1px solid var(--c-accent);
+            border-radius: 30px;
             white-space: nowrap;
-            backdrop-filter: blur(4px);
-            box-shadow: 
-                0 6px 15px rgba(0,0,0,0.18), 
-                0 0 15px rgba(255,255,255,0.7),
-                inset 0 -3px 5px rgba(0,0,0,0.06), 
-                inset 0 3px 5px rgba(255,255,255,1);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3), inset 0 0 10px rgba(0, 240, 255, 0.2);
+            transition: all 0.3s ease;
             text-decoration: none !important;
-            animation: cloudFloat 3s ease-in-out infinite;
-            animation-play-state: paused;
-            position: relative;
+            animation: floatBob 3s ease-in-out infinite;
         }
-        
-        /* Left puffy circle */
-        .rf-cloud a::before {
-            content: '';
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            background: rgba(245, 249, 255, 0.96);
-            border-radius: 50%;
-            top: -11px;
-            left: 14px;
-            z-index: -1;
-            box-shadow: inset 0 2px 3px rgba(255,255,255,1);
-            transition: background 0.3s;
-        }
-        
-        /* Right puffy circle */
-        .rf-cloud a::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: rgba(245, 249, 255, 0.96);
-            border-radius: 50%;
-            top: -9px;
-            right: 14px;
-            z-index: -1;
-            box-shadow: inset 0 2px 3px rgba(255,255,255,1);
-            transition: background 0.3s;
-        }
-
         .rf-cloud a:hover {
-            background: #ffffff;
-            color: #0084ff !important;
-            transform: scale(1.08);
-            box-shadow: 
-                0 10px 24px rgba(0,0,0,0.22), 
-                0 0 25px rgba(100,200,255,0.45),
-                inset 0 -3px 5px rgba(0,0,0,0.05),
-                inset 0 3px 5px rgba(255,255,255,1);
+            background: var(--c-accent);
+            color: #03070d !important;
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.8);
         }
-
-        .rf-cloud a:hover::before, .rf-cloud a:hover::after {
-            background: #ffffff;
-        }
-
-        @keyframes cloudFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        @keyframes floatBob {
+            0%, 100% { transform: translateY(0px); }
+            50%      { transform: translateY(-8px); }
         }
 
         /* Nav right side */
         .rf-nav-right {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             flex-shrink: 0;
         }
 
-        /* Cart button */
         .rf-cart-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 7px 16px;
-            font-size: 0.82rem;
+            padding: 8px 18px;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: var(--c-accent);
-            border: 1px solid var(--c-border-h);
+            color: var(--c-gold-lt);
+            border: 1px solid var(--c-gold);
             border-radius: var(--radius);
-            background: rgba(100,200,255,0.05);
+            background: rgba(255, 215, 0, 0.08);
             transition: all var(--transition);
-            letter-spacing: 0.02em;
         }
         .rf-cart-btn:hover {
-            color: var(--c-accent-lt);
-            background: rgba(100,200,255,0.12);
-            border-color: var(--c-accent);
-            box-shadow: 0 0 16px rgba(100,200,255,0.12);
+            color: #03070d;
+            background: var(--c-gold);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+            transform: translateY(-2px);
         }
         .rf-cart-count {
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            background: var(--c-accent-dk);
-            color: #fff;
-            padding: 1px 7px;
+            background: #03070d;
+            color: var(--c-gold);
+            padding: 2px 8px;
             border-radius: 20px;
-            min-width: 20px;
-            text-align: center;
+            border: 1px solid var(--c-gold);
         }
-
-        /* User tag */
-        .rf-user-tag {
-            font-size: 0.78rem;
-            font-weight: 500;
-            color: var(--c-muted);
-            padding: 5px 12px;
-            border: 1px solid var(--c-border);
-            border-radius: var(--radius);
-            white-space: nowrap;
-        }
-        .rf-user-tag strong { color: var(--c-text-h); font-weight: 600; }
-
-        /* Buttons */
-        .rf-btn-ghost {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--c-muted);
-            padding: 6px 14px;
-            border-radius: var(--radius);
-            border: 1px solid transparent;
-            background: transparent;
-            cursor: pointer;
-            transition: all var(--transition);
-            white-space: nowrap;
-        }
-        .rf-btn-ghost:hover { color: var(--c-text-h); border-color: var(--c-border); background: rgba(255,255,255,0.04); }
 
         .rf-btn-primary {
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             font-weight: 600;
-            color: #05080a;
-            padding: 7px 18px;
+            color: #03070d;
+            padding: 8px 20px;
             border-radius: var(--radius);
             border: none;
             background: linear-gradient(135deg, var(--c-accent), var(--c-accent-lt));
             cursor: pointer;
             transition: all var(--transition);
-            letter-spacing: 0.03em;
-            display: inline-block;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            text-decoration: none !important;
         }
-        .rf-btn-primary:hover { 
-            background: linear-gradient(135deg, var(--c-accent-lt), #c0f0ff);
-            color: #05080a; 
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(100,200,255,0.2);
+        .rf-btn-primary:hover {
+            background: linear-gradient(135deg, var(--c-accent-lt), #ffffff);
+            color: #03070d;
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+        }
+
+        .rf-btn-ghost {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--c-text);
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--c-border);
+            background: transparent;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none !important;
+        }
+        .rf-btn-ghost:hover {
+            color: var(--c-text-h);
+            border-color: var(--c-accent);
+            background: rgba(0, 240, 255, 0.08);
         }
 
         .rf-btn-danger {
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             font-weight: 500;
-            color: #ef9a9a;
-            padding: 6px 14px;
+            color: #ff9999;
+            padding: 7px 16px;
             border-radius: var(--radius);
-            border: 1px solid rgba(139, 32, 32, 0.4);
-            background: rgba(139, 32, 32, 0.12);
+            border: 1px solid rgba(255, 80, 80, 0.3);
+            background: rgba(255, 80, 80, 0.1);
             cursor: pointer;
             transition: all var(--transition);
         }
-        .rf-btn-danger:hover { background: rgba(139, 32, 32, 0.25); border-color: rgba(139, 32, 32, 0.7); }
-
-        /* ── Content buttons ── */
-        .btn-rf-primary {
-            background: linear-gradient(135deg, var(--c-accent), var(--c-accent-lt));
-            color: #05080a !important;
-            border: none;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 0.85rem;
-            letter-spacing: 0.04em;
-            padding: 10px 24px;
-            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-        }
-        .btn-rf-primary:hover { 
-            background: linear-gradient(135deg, var(--c-accent-lt), #c0f0ff);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(100,200,255,0.2);
+        .rf-btn-danger:hover {
+            background: rgba(255, 80, 80, 0.25);
+            border-color: rgba(255, 80, 80, 0.6);
+            box-shadow: 0 0 15px rgba(255, 80, 80, 0.3);
         }
 
-        .btn-rf-outline {
-            background: transparent;
-            color: var(--c-accent) !important;
-            border: 1px solid var(--c-border-h);
-            border-radius: var(--radius);
+        .rf-user-tag {
+            font-size: 0.8rem;
             font-weight: 500;
-            font-size: 0.85rem;
-            padding: 9px 20px;
-            transition: all var(--transition);
-        }
-        .btn-rf-outline:hover { border-color: var(--c-accent); background: rgba(100,200,255,0.06); }
-
-        .btn-rf-danger {
-            background: rgba(122, 32, 32, 0.3);
-            color: #ef9a9a !important;
-            border: 1px solid rgba(122, 32, 32, 0.5);
-            border-radius: var(--radius);
-            font-size: 0.85rem;
-            padding: 9px 20px;
-            transition: all var(--transition);
-        }
-        .btn-rf-danger:hover { background: rgba(122, 32, 32, 0.5); }
-
-        /* ── Accent line ── */
-        .rf-accent-line {
-            border-left: 2px solid var(--c-accent);
-            padding-left: 16px;
-        }
-
-        /* ── Content cards ── */
-        .rf-card {
-            background: var(--c-surface);
+            color: var(--c-text);
+            padding: 6px 14px;
             border: 1px solid var(--c-border);
-            border-radius: var(--radius-lg);
-            padding: 2rem;
+            border-radius: var(--radius);
+            background: var(--c-surface);
         }
-        .rf-card-sm { padding: 1.25rem; }
+        .rf-user-tag strong { color: var(--c-accent-lt); }
 
         /* ══════════════════════════════════════════════
-           RARITY BADGES
+           CARDS & UI CONTAINERS
            ══════════════════════════════════════════════ */
-        .rf-rarity {
-            font-size: 0.68rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
+        .card, .cit-card, .rf-card {
+            background: var(--c-surface) !important;
+            border: 1px solid var(--c-border) !important;
+            border-radius: var(--radius-lg) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all var(--transition);
+        }
+        .card:hover, .rf-card:hover {
+            border-color: var(--c-border-h) !important;
+            box-shadow: 0 12px 40px rgba(0, 240, 255, 0.25);
+            transform: translateY(-4px);
+        }
+
+        .form-control, .form-select {
+            background-color: var(--c-surface2) !important;
+            border-color: var(--c-border) !important;
+            color: var(--c-text-h) !important;
+            border-radius: var(--radius) !important;
+            padding: 10px 16px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--c-accent) !important;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.25) !important;
+        }
+
+        .btn-cit-primary, .btn-rf-primary {
+            background: linear-gradient(135deg, var(--c-accent), var(--c-accent-lt)) !important;
+            color: #03070d !important;
+            border: none !important;
+            border-radius: var(--radius) !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.05em !important;
+            padding: 10px 24px !important;
+            transition: all var(--transition) !important;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3) !important;
+        }
+        .btn-cit-primary:hover, .btn-rf-primary:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.6) !important;
+        }
+
+        .btn-cit-outline, .btn-rf-outline {
+            background: transparent !important;
+            color: var(--c-accent) !important;
+            border: 1px solid var(--c-border-h) !important;
+            border-radius: var(--radius) !important;
+            font-weight: 600 !important;
+            padding: 9px 20px !important;
+            transition: all var(--transition) !important;
+        }
+        .btn-cit-outline:hover, .btn-rf-outline:hover {
+            border-color: var(--c-accent) !important;
+            background: rgba(0, 240, 255, 0.12) !important;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3) !important;
+        }
+
+        /* Badges */
+        .cit-rarity, .rf-rarity {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 20px;
             display: inline-block;
         }
-        .rf-rarity-common  { background: rgba(150,150,150,0.12); color: #9e9e9e; border: 1px solid rgba(150,150,150,0.25); }
-        .rf-rarity-rare    { background: rgba(33,150,243,0.1);   color: #90caf9; border: 1px solid rgba(33,150,243,0.3); }
-        .rf-rarity-epic    { background: rgba(156,39,176,0.12);   color: #ce93d8; border: 1px solid rgba(156,39,176,0.35); }
-        .rf-rarity-legend  {
-            background: rgba(201,168,76,0.1);
-            color: var(--c-gold-lt);
-            border: 1px solid rgba(201,168,76,0.35);
-            box-shadow: 0 0 8px rgba(201,168,76,0.2);
+        .cit-rarity-common, .rf-rarity-common  { background: rgba(150,150,150,0.15); color: #b0b0b0; border: 1px solid rgba(150,150,150,0.3); }
+        .cit-rarity-rare, .rf-rarity-rare    { background: rgba(0, 240, 255, 0.15); color: var(--c-accent-lt); border: 1px solid var(--c-accent); box-shadow: 0 0 12px rgba(0, 240, 255, 0.3); }
+        .cit-rarity-epic, .rf-rarity-epic    { background: rgba(181, 55, 255, 0.18); color: #d896ff; border: 1px solid #b537ff; box-shadow: 0 0 12px rgba(181, 55, 255, 0.35); }
+        .cit-rarity-legend, .rf-rarity-legend { background: rgba(255, 215, 0, 0.18); color: var(--c-gold-lt); border: 1px solid var(--c-gold); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+        .cit-rarity-mythic, .rf-rarity-mythic { background: rgba(255, 51, 102, 0.18); color: #ff80ab; border: 1px solid #ff3366; box-shadow: 0 0 15px rgba(255, 51, 102, 0.45); }
+        .cit-rarity-divine, .rf-rarity-divine { background: linear-gradient(135deg, rgba(0,240,255,0.25), rgba(255,215,0,0.25), rgba(255,51,102,0.25)); color: #ffffff; border: 1px solid #ffffff; box-shadow: 0 0 20px rgba(0,240,255,0.6); animation: divineGlow 3s ease-in-out infinite alternate; }
+
+        @keyframes divineGlow {
+            0%   { box-shadow: 0 0 15px rgba(0,240,255,0.5), 0 0 30px rgba(255,215,0,0.3); }
+            100% { box-shadow: 0 0 25px rgba(255,51,102,0.8), 0 0 45px rgba(0,240,255,0.6); }
         }
 
-        /* ══════════════════════════════════════════════
-           MYSTERIOUS ITEM GLOW
-           ══════════════════════════════════════════════ */
-        .rf-glow-rare {
-            box-shadow: 0 0 20px rgba(33,150,243,0.15), 0 0 40px rgba(33,150,243,0.05);
-        }
-        .rf-glow-rare:hover {
-            box-shadow: 0 0 30px rgba(33,150,243,0.25), 0 0 60px rgba(33,150,243,0.1);
-        }
-        .rf-glow-epic {
-            box-shadow: 0 0 20px rgba(156,39,176,0.15), 0 0 40px rgba(156,39,176,0.05);
-        }
-        .rf-glow-epic:hover {
-            box-shadow: 0 0 30px rgba(156,39,176,0.25), 0 0 60px rgba(156,39,176,0.1);
-        }
-        .rf-glow-legend {
-            box-shadow: 0 0 20px rgba(201,168,76,0.2), 0 0 40px rgba(201,168,76,0.08);
-            animation: legendPulse 3s ease-in-out infinite;
-        }
-        @keyframes legendPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(201,168,76,0.2), 0 0 40px rgba(201,168,76,0.08); }
-            50% { box-shadow: 0 0 30px rgba(201,168,76,0.3), 0 0 60px rgba(201,168,76,0.15); }
-        }
-
-        /* ── Breadcrumbs ── */
-        .rf-breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.78rem;
-            color: var(--c-muted);
-            margin-bottom: 2rem;
-        }
-        .rf-breadcrumb a { color: var(--c-muted); }
-        .rf-breadcrumb a:hover { color: var(--c-accent); }
-        .rf-breadcrumb-sep { color: var(--c-border-h); font-size: 0.7rem; }
-        .rf-breadcrumb-cur { color: var(--c-text); }
-
-        /* ── Tables ── */
-        .table { color: var(--c-text); }
-        .table thead th {
-            color: var(--c-muted);
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            border-color: var(--c-border);
-            padding: 10px 16px;
-        }
-        .table tbody td { border-color: rgba(255,255,255,0.04); padding: 12px 16px; }
-        .table-hover tbody tr:hover td { background: rgba(255,255,255,0.025); }
-        .table-dark { --bs-table-bg: var(--c-surface); }
-
-        /* ── Alerts ── */
-        .rf-alert {
-            padding: 12px 16px;
-            border-radius: var(--radius);
-            font-size: 0.87rem;
-            margin-bottom: 1rem;
-        }
-        .rf-alert-success {
-            background: rgba(30, 92, 42, 0.25);
-            color: #a5d6a7;
-            border: 1px solid rgba(30, 92, 42, 0.5);
-        }
-        .rf-alert-error {
-            background: rgba(122, 32, 32, 0.25);
-            color: #ef9a9a;
-            border: 1px solid rgba(122, 32, 32, 0.5);
-        }
-        .rf-alert-info {
-            background: rgba(100,200,255,0.08);
-            color: var(--c-accent-lt);
-            border: 1px solid var(--c-border);
-        }
-        .rf-alert-warning {
-            background: rgba(180, 100, 0, 0.2);
-            color: #ffcc80;
-            border: 1px solid rgba(180, 100, 0, 0.4);
-        }
-
-        /* ══════════════════════════════════════════════
-           FOOTER
-           ══════════════════════════════════════════════ */
-        .rf-footer {
-            margin-top: auto;
-            padding: 32px 0;
-            border-top: 1px solid var(--c-border);
-            background: var(--c-surface);
-            position: relative;
-            z-index: 1;
-        }
-        .rf-footer-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .rf-footer-brand {
-            font-family: 'Cinzel Decorative', serif;
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            background: linear-gradient(135deg, var(--c-accent), var(--c-accent-lt));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-transform: uppercase;
-        }
-        .rf-footer-copy {
-            font-size: 0.75rem;
-            color: var(--c-muted);
-        }
-
-        /* ── Scrollbar ── */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--c-bg); }
-        ::-webkit-scrollbar-thumb { background: var(--c-border-h); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--c-accent-dk); }
-        ::selection { background: rgba(100,200,255,0.3); color: #fff; }
-
-        /* ── Page transitions ── */
         .rf-main-content {
             position: relative;
             z-index: 1;
-            animation: fadeInUp 0.4s ease-out;
+            animation: fadeIn 0.5s ease-out;
         }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(12px); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* Mysterious product image overlay in cards */
-        .rf-mystery-img-wrap {
+        .rf-footer {
+            margin-top: auto;
+            padding: 35px 0;
+            border-top: 1px solid var(--c-border);
+            background: rgba(3, 7, 13, 0.9);
             position: relative;
-            overflow: hidden;
-        }
-        .rf-mystery-img-wrap img {
-            filter: blur(6px) saturate(0.4);
-            transition: filter 0.6s ease;
-        }
-        .rf-mystery-img-wrap:hover img {
-            filter: blur(0) saturate(1);
-        }
-        .rf-mystery-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: rgba(255,255,255,0.7);
-            text-shadow: 0 0 30px rgba(179,136,255,0.5);
-            transition: opacity 0.6s ease;
-            pointer-events: none;
-        }
-        .rf-mystery-img-wrap:hover .rf-mystery-overlay {
-            opacity: 0;
-        }
-
-        /* Levitation effect */
-        .rf-levitate {
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
-        }
-        .rf-levitate:hover {
-            transform: translateY(-8px);
-        }
-
-        /* Particle canvas for mysterious product detail */
-        #rf-particles-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
+            z-index: 10;
         }
 
         {% block extra_css %}{% endblock %}
@@ -672,6 +463,24 @@
 </head>
 <body>
 
+    <!-- Particle Canvas Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- ═══ PROMO TAPE MARQUEE ═══ -->
+    <div class="rf-marquee-bar">
+        <div class="rf-marquee-track">
+            <span>⚡ БЕЗКОШТОВНА ДОСТАВКА ВІД 1500 ГРН</span> <span class="star">★</span>
+            <span>🔮 ЗНИЖКА 15% З ПРОМОКОДОМ RARE15</span> <span class="star">★</span>
+            <span>✨ ЕКСКЛЮЗИВНІ АРТЕФАКТИ ТА РІДКІСНІ ЗНАХІДКИ</span> <span class="star">★</span>
+            <span>🛡️ 100% АВТЕНТИЧНІСТЬ ТА ГАРАНТІЯ ЯКОСТІ</span> <span class="star">★</span>
+            <span>⚡ БЕЗКОШТОВНА ДОСТАВКА ВІД 1500 ГРН</span> <span class="star">★</span>
+            <span>🔮 ЗНИЖКА 15% З ПРОМОКОДОМ RARE15</span> <span class="star">★</span>
+            <span>✨ ЕКСКЛЮЗИВНІ АРТЕФАКТИ ТА РІДКІСНІ ЗНАХІДКИ</span> <span class="star">★</span>
+            <span>🛡️ 100% АВТЕНТИЧНІСТЬ ТА ГАРАНТІЯ ЯКОСТІ</span> <span class="star">★</span>
+        </div>
+    </div>
+
+    <!-- ═══ NAVBAR ═══ -->
     <nav class="rf-navbar">
         <div class="container">
             <div class="rf-nav-left">
@@ -682,8 +491,8 @@
                 {% endif %}
             </div>
 
-            <!-- ═══ RADIAL LOGO MENU ═══ -->
-            <div class="rf-radial-wrap">
+            <!-- ═══ CENTER ROTATING EMBLEM & FLOATING TAG CLOUDS ═══ -->
+            <div class="rf-radial-wrap" id="header-emblem-wrap">
                 <a href="{% url 'shop:product_list' %}" class="rf-radial-trigger">
                     <span>RF</span>
                 </a>
@@ -696,11 +505,10 @@
 
                 <div class="rf-brand-label">Rare Find</div>
             </div>
-            <!-- ═══ END RADIAL LOGO MENU ═══ -->
 
             <div class="rf-nav-right">
                 <a href="{% url 'cart:cart_detail' %}" class="rf-cart-btn">
-                    🛒 Кошик
+                    🛒 Скарбниця
                     {% if cart|length > 0 %}
                         <span class="rf-cart-count">{{ cart|length }}</span>
                     {% endif %}
@@ -714,18 +522,19 @@
                     </form>
                 {% else %}
                     <a href="{% url 'accounts:login' %}" class="rf-btn-ghost">Увійти</a>
-                    <a href="{% url 'accounts:register' %}" class="rf-btn-primary">Приєднатися</a>
+                    <a href="{% url 'accounts:signup' %}" class="rf-btn-primary">Приєднатися</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
+    <!-- ═══ MAIN CONTENT ═══ -->
     <div class="container py-5 flex-grow-1 rf-main-content">
 
         {% if messages %}
         <div class="mb-4">
             {% for message in messages %}
-            <div class="rf-alert rf-alert-{{ message.tags }} d-flex align-items-start gap-3" role="alert">
+            <div class="alert alert-{{ message.tags }} d-flex align-items-start gap-3" role="alert">
                 <div>{{ message }}</div>
             </div>
             {% endfor %}
@@ -735,71 +544,131 @@
         {% block content %}{% endblock %}
     </div>
 
+    <!-- ═══ FOOTER ═══ -->
     <footer class="rf-footer">
         <div class="container">
-            <div class="rf-footer-inner">
-                <span class="rf-footer-brand">Rare Find</span>
-                <span class="rf-footer-copy">2026 · Магазин Унікальних Знахідок · Всі права захищені</span>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <span style="font-family:'Cinzel Decorative',serif;font-weight:900;color:var(--c-accent-lt);letter-spacing:0.2em;">RARE FIND</span>
+                <span style="font-size:0.8rem;color:var(--c-muted);">2026 · Магазин Унікальних Знахідок · Всі права захищені</span>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
-    // Dynamic Random Radial Exploding Clouds Menu
+    // ══════════════════════════════════════════════
+    // ACTIVE THEORY STYLE PARTICLE CANVAS
+    // ══════════════════════════════════════════════
     (function() {
-        const wrapper = document.querySelector('.rf-radial-wrap');
+        const canvas = document.getElementById('bg-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const particleCount = 45;
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                radius: Math.random() * 2 + 1,
+                color: Math.random() > 0.5 ? 'rgba(0, 240, 255, ' : 'rgba(181, 55, 255, ',
+                alpha: Math.random() * 0.5 + 0.2
+            });
+        }
+
+        let mouseX = width / 2;
+        let mouseY = height / 2;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+                if (p.y < 0) p.y = height;
+                if (p.y > height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color + p.alpha + ')';
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = p.color + '0.8)';
+                ctx.fill();
+            });
+
+            // Connect nearby particles with glowing lines
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 130) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(0, 240, 255, ${0.15 * (1 - dist / 130)})`;
+                        ctx.lineWidth = 0.6;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+    })();
+
+    // ══════════════════════════════════════════════
+    // RADIAL EMBLEM FLOATING CLOUDS INTERACTION
+    // ══════════════════════════════════════════════
+    (function() {
+        const wrapper = document.getElementById('header-emblem-wrap');
         if (!wrapper) return;
         const clouds = wrapper.querySelectorAll('.rf-cloud');
         const total = clouds.length;
 
         wrapper.addEventListener('mouseenter', () => {
             clouds.forEach((cloud, index) => {
-                // Distribute evenly in a circle, with a random angular variation
                 const sectorAngle = (2 * Math.PI / total) * index;
-                // Add minor random shift (+/- 12 degrees) so they fly out slightly differently each time
-                const randomOffset = (Math.random() - 0.5) * 0.22;
+                const randomOffset = (Math.random() - 0.5) * 0.25;
                 const angle = sectorAngle + randomOffset;
-
-                // Random fly-out distance between 110px and 170px
-                const distance = 110 + Math.random() * 60;
+                const distance = 110 + Math.random() * 50;
 
                 const x = Math.cos(angle) * distance;
                 const y = Math.sin(angle) * distance;
 
-                // Set a random floating speed & delay to make them float organically
-                const floatDuration = 2.4 + Math.random() * 1.6;
-                const floatDelay = Math.random() * 1.0;
-                const link = cloud.querySelector('a');
-                if (link) {
-                    link.style.animationDuration = `${floatDuration}s`;
-                    link.style.animationDelay = `${floatDelay}s`;
-                    link.style.animationPlayState = 'running';
-                }
-
-                // Smoothly slide out
                 cloud.style.transform = `translate(calc(-50% + ${x.toFixed(1)}px), calc(-50% + ${y.toFixed(1)}px)) scale(1)`;
                 cloud.style.opacity = '1';
                 cloud.style.pointerEvents = 'auto';
-
-                // Random tilt/rotate to add playfulness
-                const randomRotate = (Math.random() - 0.5) * 10; // +/- 5 deg
-                cloud.style.rotate = `${randomRotate.toFixed(1)}deg`;
             });
         });
 
         wrapper.addEventListener('mouseleave', () => {
             clouds.forEach((cloud) => {
-                // Return behind the medallion and scale down
-                cloud.style.transform = 'translate(-50%, -50%) scale(0.3)';
+                cloud.style.transform = 'translate(-50%, -50%) scale(0.2)';
                 cloud.style.opacity = '0';
                 cloud.style.pointerEvents = 'none';
-                cloud.style.rotate = '0deg';
-                const link = cloud.querySelector('a');
-                if (link) {
-                    link.style.animationPlayState = 'paused';
-                }
             });
         });
     })();

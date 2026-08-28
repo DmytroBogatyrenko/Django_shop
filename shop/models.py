@@ -46,6 +46,8 @@ class Product(models.Model):
 
     price = models.DecimalField("ціна", decimal_places=2, max_digits=10)
 
+    stock = models.PositiveIntegerField("залишок на складі", default=0)
+
     slug = models.SlugField("slug", unique=True, blank=True)
 
     is_featured = models.BooleanField("хіт продажів", default=False)
@@ -56,12 +58,14 @@ class Product(models.Model):
 
     rarity = models.CharField(
         "рідкісність",
-        max_length=10,
+        max_length=20,
         choices=[
             ('common', 'Звичайний'),
             ('rare', 'Рідкісний'),
             ('epic', 'Епічний'),
             ('legend', 'Легендарний'),
+            ('mythic', 'Міфічний'),
+            ('divine', 'Божественний'),
         ],
         default='common',
     )
@@ -76,6 +80,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def is_in_stock(self):
+        return self.stock > 0
 
     def save(self, *args, **kwargs):
         if not self.slug:

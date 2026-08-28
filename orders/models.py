@@ -1,4 +1,5 @@
 import datetime
+import uuid
 
 from django.conf import settings
 from django.db import models
@@ -10,13 +11,24 @@ from shop.models import Product
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending',    'Очікує підтвердження'),
+        ('paid',       'Оплачено'),
         ('processing', 'В обробці'),
         ('shipped',    'Відправлено'),
         ('delivered',  'Доставлено'),
         ('cancelled',  'Скасовано'),
     ]
 
+    PAYMENT_CHOICES = [
+        ('cash', 'Готівкою при отриманні'),
+        ('card', 'Оплата карткою онлайн'),
+        ('bank', 'Банківський переказ'),
+    ]
+
     CANCEL_HOURS = 24
+
+    order_number = models.CharField(
+        'номер замовлення', max_length=32, unique=True, blank=True,
+    )
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -32,6 +44,10 @@ class Order(models.Model):
         choices=STATUS_CHOICES,
         default='pending',
     )
+    payment_method = models.CharField(
+        'спосіб оплати', max_length=20, choices=PAYMENT_CHOICES, default='cash',
+    )
+    notes = models.TextField('коментар до замовлення', blank=True)
     total_price = models.DecimalField(
         'загальна сума', max_digits=10, decimal_places=2, default=0
     )
@@ -61,11 +77,26 @@ class Order(models.Model):
         return f'Замовлення #{self.id} — {self.get_status_display()}'
 
     def save(self, *args, **kwargs):
+        if not self.order_number:
+            self.order_number = self._generate_order_number()
         if not self.pk and not self.estimated_delivery:
             self.estimated_delivery = (
                 timezone.now().date() + datetime.timedelta(days=5)
             )
         super().save(*args, **kwargs)
+
+    @staticmethod
+    def _generate_order_number():
+        """Номер виду ORD-20260727-1A2B3C4D — читабельний і практично унікальний."""
+        return f'ORD-{timezone.localdate():%Y%m%d}-{uuid.uuid4().hex[:8].upper()}'
+
+    @property
+    def is_paid(self):
+        return self.status not in ('pending', 'cancelled')
+
+    @property
+    def requires_online_payment(self):
+        return self.payment_method == 'card' and self.status == 'pending'
 
     def get_total_price(self):
         return sum(item.get_total_price() for item in self.items.all())

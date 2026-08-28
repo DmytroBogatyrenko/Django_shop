@@ -5,7 +5,7 @@
 <div class="text-center py-5">
   <div class="display-1 mb-3"></div>
   <h1 class="mb-3">Дякуємо за замовлення!</h1>
-  <p class="lead text-muted">Замовлення <strong>#{{ order.id }}</strong> успішно оформлено.</p>
+  <p class="lead text-muted">Замовлення <strong>#{{ order.order_number }}</strong> успішно оформлено.</p>
   <p class="text-muted">Статус: <span class="badge bg-warning text-dark">{{ order.get_status_display }}</span></p>
   <div class="mt-4 d-flex gap-3 justify-content-center">
     <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-primary">Деталі замовлення</a>

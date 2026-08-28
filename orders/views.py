@@ -3,69 +3,193 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 
 from cart.cart import Cart
-from .forms import ShippingAddressForm
-from .models import Order, OrderItem
+from shop.models import Product
+
+from .forms import OrderCheckoutForm, ShippingAddressForm
+from .models import Order, OrderItem, ShippingAddress
+
+SESSION_ADDRESS_KEY = 'checkout_address'
+
+
+def _get_promocode_context(request, subtotal):
+    """Порахувати знижку за промокодом, застосованим у сесії (див. promocode app)."""
+    from promocode.models import Promocode
+
+    promocode = None
+    promocode_id = request.session.get('promocode_id')
+    if promocode_id:
+        promocode = Promocode.objects.filter(id=promocode_id).first()
+        if not promocode or not promocode.is_valid():
+            promocode = None
+
+    discount_amount = Decimal('0.00')
+    if promocode:
+        discount_amount = (subtotal * Decimal(promocode.value) / Decimal('100')).quantize(Decimal('0.01'))
+
+    return {
+        'promocode': promocode,
+        'original_price': subtotal,
+        'discount_amount': discount_amount,
+        'final_price': subtotal - discount_amount,
+    }
 
 
 @login_required
 def checkout(request):
+    """Крок 1: адреса доставки."""
     cart = Cart(request)
 
     if len(cart) == 0:
         messages.warning(request, 'Скарбниця порожня. Додайте реліквії перед оформленням')
         return redirect('shop:product_list')
 
-    form = ShippingAddressForm()
+    form = ShippingAddressForm(request.POST or None)
 
     if request.method == 'POST':
-        form = ShippingAddressForm(request.POST)
         if form.is_valid():
-            with transaction.atomic():
-                order = Order.objects.create(
-                    user=request.user,
-                    total_price=cart.get_total_price(),
-                )
-                shipping = form.save(commit=False)
-                shipping.order = order
-                shipping.save()
+            # Адресу поки не пишемо в базу — вона стане частиною замовлення
+            # тільки на кроці підтвердження.
+            request.session[SESSION_ADDRESS_KEY] = form.cleaned_data
+            return redirect('orders:checkout_confirm')
+        messages.error(request, 'Перевірте правильність заповнення форми.')
 
-                for item in cart:
-                    OrderItem.objects.create(
-                        order=order,
-                        product=item['product'],
-                        product_name=item['product'].name,
-                        price=item['price'],
-                        quantity=item['quantity'],
-                    )
-                cart.clear()
+    price_context = _get_promocode_context(request, cart.get_total_price())
 
-            messages.success(request, f'Замовлення #{order.id} успішно оформлено!')
-            return redirect('orders:thank_you', order_id=order.id)
-        else:
-            messages.error(request, 'Перевірте правильність заповнення форми.')
-
-    return render(request, 'orders/checkout.html', {'cart': cart, 'form': form})
+    return render(request, 'orders/checkout.html', {
+        'cart': cart,
+        'form': form,
+        **price_context,
+    })
 
 
 @login_required
-def thank_you(request, order_id):
+def checkout_confirm(request):
+    """Крок 2: спосіб оплати, підсумок і створення замовлення."""
+    cart = Cart(request)
+
+    if len(cart) == 0:
+        messages.warning(request, 'Скарбниця порожня. Додайте реліквії перед оформленням')
+        return redirect('shop:product_list')
+
+    address_data = request.session.get(SESSION_ADDRESS_KEY)
+    if not address_data:
+        messages.warning(request, 'Спочатку вкажіть адресу доставки')
+        return redirect('orders:checkout')
+
+    price_context = _get_promocode_context(request, cart.get_total_price())
+    form = OrderCheckoutForm(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            try:
+                order = _create_order(
+                    user=request.user,
+                    cart=cart,
+                    address_data=address_data,
+                    payment_method=form.cleaned_data['payment_method'],
+                    notes=form.cleaned_data['notes'],
+                    promocode=price_context['promocode'],
+                    discount_amount=price_context['discount_amount'],
+                )
+            except ValueError as exc:
+                messages.error(request, f'Не вдалося створити замовлення: {exc}')
+                return redirect('cart:cart_detail')
+
+            cart.clear()
+            request.session.pop(SESSION_ADDRESS_KEY, None)
+            for key in ('promocode_id', 'promocode_code', 'promocode_value'):
+                request.session.pop(key, None)
+
+            messages.success(request, f'Замовлення #{order.order_number} успішно оформлено!')
+
+            from .emails import send_order_confirmation_email, notify_admins_about_order
+            send_order_confirmation_email(order)
+            notify_admins_about_order(order)
+
+            if order.requires_online_payment:
+                return redirect('payments:initiate_payment', order_number=order.order_number)
+            return redirect('orders:order_success', order_id=order.id)
+        messages.error(request, 'Перевірте правильність заповнення форми.')
+
+    return render(request, 'orders/checkout_confirm.html', {
+        'cart': cart,
+        'address': address_data,
+        'form': form,
+        **price_context,
+    })
+
+
+@transaction.atomic
+def _create_order(user, cart, address_data, payment_method, notes, promocode, discount_amount):
+    """Створити замовлення з вмісту кошика; списати залишки на складі.
+
+    Уся функція виконується в одній транзакції: якщо на будь-якому товарі
+    забракне залишку, база відкотиться до стану «замовлення не було».
+    """
+    items = list(cart)
+    if not items:
+        raise ValueError('скарбниця порожня')
+
+    subtotal = cart.get_total_price()
+
+    order = Order.objects.create(
+        user=user,
+        total_price=subtotal - discount_amount,
+        payment_method=payment_method,
+        notes=notes,
+        coupon=promocode,
+        discount=promocode.value if promocode else 0,
+    )
+
+    ShippingAddress.objects.create(order=order, **address_data)
+
+    for item in items:
+        # select_for_update блокує рядок товару до кінця транзакції,
+        # щоб двоє покупців не «купили» один і той самий останній екземпляр.
+        product = Product.objects.select_for_update().get(pk=item['product'].pk)
+
+        if product.stock < item['quantity']:
+            raise ValueError(f'недостатньо товару «{product.name}» на складі')
+
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            product_name=product.name,
+            price=product.price,
+            quantity=item['quantity'],
+        )
+
+        # F() рахує нове значення на боці бази — без гонок «прочитав-змінив-записав».
+        Product.objects.filter(pk=product.pk).update(stock=F('stock') - item['quantity'])
+
+    if promocode:
+        promocode.times_used = F('times_used') + 1
+        promocode.save(update_fields=['times_used'])
+
+    return order
+
+
+@login_required
+def order_success(request, order_id):
+    """Сторінка «дякуємо за замовлення»."""
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    return render(request, 'orders/thank_you.html', {'order': order})
+    return render(request, 'orders/order_success.html', {'order': order})
 
 
 @login_required
 def order_list(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related('items')
+    orders = Order.objects.filter(user=request.user).select_related('coupon').prefetch_related('items__product')
     return render(request, 'orders/order_list.html', {'orders': orders})
 
 
 @login_required
 def order_detail(request, order_id):
     order = get_object_or_404(
-        Order.objects.prefetch_related('items__product'),
+        Order.objects.select_related('coupon', 'shipping_address').prefetch_related('items__product', 'status_history'),
         id=order_id,
         user=request.user,
     )
@@ -74,7 +198,6 @@ def order_detail(request, order_id):
 
 @login_required
 def cancel_order(request, order_id):
-
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     if not order.can_be_cancelled():

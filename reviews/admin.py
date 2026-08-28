@@ -1,15 +1,18 @@
 from django.contrib import admin
-
-# Register your models here.
-
 from .models import Review
 
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['user', 'product', 'rating', 'is_verified_purchase',
-                    'is_approved', 'created_at']
-    list_filter = ['is_approved', 'is_verified_purchase', 'rating']
+    list_display = ['user', 'product', 'rating', 'is_verified_purchase', 'is_approved', 'created_at', 'helpful_votes']
+    list_filter = ['rating', 'is_verified_purchase', 'is_approved', 'created_at']
     search_fields = ['user__username', 'product__name', 'text']
-    list_editable = ['is_approved']
-    readonly_fields = ['is_verified_purchase', 'created_at']
+    actions = ['approve_reviews', 'disapprove_reviews']
+
+    @admin.action(description='Схвалити вибрані відгуки')
+    def approve_reviews(self, request, queryset):
+        queryset.update(is_approved=True)
+
+    @admin.action(description='Відхилити вибрані відгуки')
+    def disapprove_reviews(self, request, queryset):
+        queryset.update(is_approved=False)

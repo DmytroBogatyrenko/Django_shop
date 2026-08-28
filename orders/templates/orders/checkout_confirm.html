@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Підтвердження замовлення{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="my-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">Головна</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'cart:cart_detail' %}">Кошик</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'orders:checkout' %}">Адреса</a></li>
+    <li class="breadcrumb-item active">Підтвердження</li>
+  </ol>
+</nav>
+
+<h1 class="mb-4">Підтвердження замовлення</h1>
+
+<div class="row g-4">
+  <div class="col-md-7">
+    <div class="card mb-3">
+      <div class="card-header fw-bold">Адреса доставки</div>
+      <div class="card-body">
+        <p class="mb-1">{{ address.first_name }} {{ address.last_name }}</p>
+        <p class="mb-1">{{ address.phone }} · {{ address.email }}</p>
+        <p class="mb-0">{{ address.postal_code }}, {{ address.city }}, {{ address.address }}</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header fw-bold">Спосіб оплати</div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% for radio in form.payment_method %}
+            <div class="form-check mb-2">
+              {{ radio.tag }}
+              <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+            </div>
+          {% endfor %}
+
+          <label class="form-label mt-3">{{ form.notes.label }}</label>
+          {{ form.notes }}
+
+          <div class="mt-4 d-grid">
+            <button type="submit" class="btn btn-success btn-lg">Підтвердити замовлення</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card mb-3">
+      <div class="card-header fw-bold">Ваше замовлення</div>
+      <ul class="list-group list-group-flush">
+        {% for item in cart %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ item.product.name }} <span class="text-muted">× {{ item.quantity }}</span></span>
+            <span>{{ item.total_price }} грн</span>
+          </li>
+        {% endfor %}
+
+        <li class="list-group-item d-flex justify-content-between">
+          <span>Сума без знижки:</span>
+          <span>{{ original_price }} грн</span>
+        </li>
+
+        {% if promocode %}
+          <li class="list-group-item d-flex justify-content-between text-success">
+            <span>Знижка ({{ promocode.code }} −{{ promocode.value }}%):</span>
+            <span>−{{ discount_amount }} грн</span>
+          </li>
+        {% endif %}
+
+        <li class="list-group-item d-flex justify-content-between fw-bold fs-5">
+          <span>До оплати:</span>
+          <span class="text-success">{{ final_price }} грн</span>
+        </li>
+      </ul>
+    </div>
+
+    <a href="{% url 'orders:checkout' %}" class="btn btn-outline-secondary w-100">
+      &larr; Змінити адресу
+    </a>
+  </div>
+</div>
+{% endblock %}

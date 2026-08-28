@@ -1,126 +1,103 @@
 {% extends "base.html" %}
 
-{% block title %}{% if selected_category %}{{ selected_category.name }}{% else %}Каталог товарів{% endif %}
-{% block extra_js %}
-<script>
-// AJAX пошук з автодоповненням
-// Принцип: при кожному введенні символу відправляємо запит на сервер
-// і показуємо результати у dropdown без перезавантаження сторінки
-
-const searchInput = document.getElementById('search-input');
-const dropdown    = document.getElementById('search-dropdown');
-let searchTimer;  // таймер для debounce
-
-searchInput.addEventListener('input', function() {
-    const query = this.value.trim();
-
-    // Debounce: чекаємо 300мс після останнього символу перш ніж відправити запит.
-    // Без цього запит летів би на кожен натиснутий символ — забагато.
-    clearTimeout(searchTimer);
-
-    if (query.length < 2) {
-        dropdown.style.display = 'none';
-        return;
-    }
-
-    searchTimer = setTimeout(() => {
-        // fetch — асинхронний HTTP запит без перезавантаження сторінки
-        fetch(`{% url 'shop:search_autocomplete' %}?q=${encodeURIComponent(query)}`)
-            .then(r => r.json())
-            .then(data => {
-                if (data.results.length === 0) {
-                    dropdown.style.display = 'none';
-                    return;
-                }
-
-                // Будуємо HTML для кожного результату
-                dropdown.innerHTML = data.results.map(item => `
-                    <a href="${item.url}"
-                       style="display:flex;justify-content:space-between;align-items:center;
-                              padding:10px 14px;color:var(--c-text-h);text-decoration:none;
-                              border-bottom:1px solid var(--c-border);transition:background 0.15s;"
-                       onmouseover="this.style.background='rgba(201,168,76,0.08)'"
-                       onmouseout="this.style.background=''">
-                        <div>
-                            <div style="font-weight:500;">${item.name}</div>
-                            <div style="font-size:0.75rem;color:var(--c-muted);">${item.category}</div>
-                        </div>
-                        <div style="color:var(--c-gold);font-weight:600;font-size:0.88rem;">${item.price} грн</div>
-                    </a>
-                `).join('');
-
-                dropdown.style.display = 'block';
-            });
-    }, 300);
-});
-
-// Закриваємо dropdown якщо клікнули поза ним
-document.addEventListener('click', function(e) {
-    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.style.display = 'none';
-    }
-});
-</script>
-{% endblock %}
-{% endblock %}
+{% block title %}{% if selected_category %}{{ selected_category.name }} — рідкісна знахідка{% else %}Каталог Унікальних Знахідок — рідкісна знахідка{% endif %}{% endblock %}
 
 {% block content %}
 
-<!-- Breadcrumbs -->
-<nav aria-label="breadcrumb" class="my-3">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">Головна</a></li>
-    {% if selected_category %}
-      {% if selected_category.parent %}
-        <li class="breadcrumb-item">
-          <a href="{{ selected_category.parent.get_absolute_url }}">{{ selected_category.parent.name }}</a>
-        </li>
-      {% endif %}
-      <li class="breadcrumb-item active" aria-current="page">{{ selected_category.name }}</li>
-    {% else %}
-      <li class="breadcrumb-item active" aria-current="page">Всі товари</li>
-    {% endif %}
-  </ol>
-</nav>
+<!-- ══════════════════════════════════════════════
+     CENTER GRAND HERO SHOWCASE WITH ROTATING EMBLEM & FLOATING CLOUDS
+     ══════════════════════════════════════════════ -->
+<div class="position-relative py-5 text-center my-4 overflow-hidden" style="background:radial-gradient(ellipse at center, rgba(0, 240, 255, 0.08) 0%, rgba(103, 10, 171, 0.12) 50%, transparent 80%); border:1px solid var(--c-border); border-radius:var(--radius-lg); backdrop-filter:blur(20px);">
 
-<div class="row mb-4">
-    <div class="col-md-6">
-        <form method="get" action="" class="d-flex">
-            <div class="position-relative flex-grow-1 me-2">
-                <input class="form-control" type="search" name="q"
+    <!-- Centered Rotating Emblem & Floating Clouds Box -->
+    <div class="position-relative d-inline-block mx-auto mb-4" id="hero-emblem-container" style="width:260px; height:260px;">
+        
+        <!-- Outer Glowing Orbit Ring 1 -->
+        <div class="position-absolute top-50 left-50 translate-middle rounded-circle" style="width:240px; height:240px; border:1.5px dashed rgba(0, 240, 255, 0.4); animation: orbitSpin 20s linear infinite; pointer-events:none;"></div>
+        
+        <!-- Outer Glowing Orbit Ring 2 -->
+        <div class="position-absolute top-50 left-50 translate-middle rounded-circle" style="width:200px; height:200px; border:1px solid rgba(181, 55, 255, 0.35); animation: orbitSpinRev 15s linear infinite; pointer-events:none;"></div>
+
+        <!-- CENTER ROTATING LOGO EMBLEM -->
+        <div class="position-absolute top-50 left-50 translate-middle rounded-circle d-flex align-items-center justify-content-center"
+             id="hero-emblem"
+             style="width:130px; height:130px; background:radial-gradient(circle at 30% 30%, #00f0ff, #670aab 70%, #03070d); border:3px solid var(--c-accent); box-shadow:0 0 45px rgba(0, 240, 255, 0.6), inset 0 0 25px rgba(255, 255, 255, 0.3); cursor:pointer; transition:all 0.5s ease; animation: emblemRotate 16s linear infinite; z-index:10;">
+            <div class="text-center" style="animation: counterRotate 16s linear infinite;">
+                <div style="font-family:'Cinzel Decorative',serif; font-size:1.6rem; font-weight:900; color:#fff; text-shadow:0 0 15px rgba(0,240,255,1); line-height:1;">RF</div>
+                <div style="font-family:'Orbitron',sans-serif; font-size:0.5rem; letter-spacing:0.2em; color:var(--c-accent-lt); margin-top:4px;">RARE FIND</div>
+            </div>
+        </div>
+
+        <!-- FLOATING CLOUDS / BUBBLES -->
+        <div class="hero-cloud-tag" style="--angle:0deg; --dist:130px;">✨ Антигравітація</div>
+        <div class="hero-cloud-tag" style="--angle:45deg; --dist:145px;">🔮 Сувій Мудрості</div>
+        <div class="hero-cloud-tag" style="--angle:90deg; --dist:135px;">⚡ Рукавички Вітру</div>
+        <div class="hero-cloud-tag" style="--angle:135deg; --dist:140px;">🌌 Сфера Неба</div>
+        <div class="hero-cloud-tag" style="--angle:180deg; --dist:130px;">💎 Еліксир Зору</div>
+        <div class="hero-cloud-tag" style="--angle:225deg; --dist:145px;">🪐 Пегас ST100</div>
+        <div class="hero-cloud-tag" style="--angle:270deg; --dist:135px;">🛡️ Кулак Титана</div>
+        <div class="hero-cloud-tag" style="--angle:315deg; --dist:140px;">✨ Загадкова Знахідка</div>
+    </div>
+
+    <!-- Hero Title -->
+    <h1 style="font-family:'Cinzel Decorative',serif; font-weight:900; font-size:2.4rem; color:#fff; text-shadow:0 0 25px rgba(0,240,255,0.6); margin-bottom:0.5rem;">
+        RARE FIND
+    </h1>
+    <p class="mx-auto" style="max-width:640px; color:var(--c-text); font-size:1.05rem;">
+        Магазин ексклюзивних артефактів, рідкісних реліквій та дивовижних знахідок. Торкніться магії майбутнього.
+    </p>
+
+    <!-- Interactive Search Bar -->
+    <div class="mx-auto mt-4 position-relative" style="max-width:560px;">
+        <form method="get" action="{% url 'shop:product_list' %}" class="d-flex gap-2">
+            <div class="position-relative flex-grow-1">
+                <input class="form-control form-control-lg" type="search" name="q"
                        id="search-input"
-                       placeholder="Пошук товарів..."
+                       placeholder="Пошук артефактів та знахідок..."
                        value="{{ query }}"
-                       autocomplete="off">
-                <!-- Dropdown для автодоповнення — JavaScript заповнить його -->
+                       autocomplete="off"
+                       style="background:rgba(16,28,42,0.95); border:1px solid var(--c-accent); color:#fff; font-size:0.95rem; border-radius:30px; padding-left:24px;">
+                
+                <!-- Dropdown для автодоповнення -->
                 <div id="search-dropdown"
-                     style="display:none;position:absolute;top:100%;left:0;right:0;z-index:9999;
-                            background:var(--c-surface);border:1px solid var(--c-border);
-                            border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,0.4);
-                            max-height:320px;overflow-y:auto;">
+                     style="display:none; position:absolute; top:100%; left:0; right:0; z-index:9999;
+                            background:rgba(10,17,26,0.98); border:1px solid var(--c-accent);
+                            border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,0.8);
+                            max-height:340px; overflow-y:auto; margin-top:8px;">
                 </div>
             </div>
-            <button class="btn btn-outline-success" type="submit">Шукати</button>
+            <button class="btn btn-cit-primary rounded-pill px-4" type="submit">Шукати</button>
         </form>
     </div>
 </div>
 
-
+<!-- ══════════════════════════════════════════════
+     FEATURED PRODUCTS SECTION
+     ══════════════════════════════════════════════ -->
 {% if featured_products %}
 <section class="mb-5">
-    <h2 class="cit-accent-line mb-4" style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--c-gold-lt);">Хіти продажів</h2>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="font-family:'Cinzel Decorative',serif; font-size:1.4rem; color:var(--c-gold-lt); text-shadow:0 0 15px rgba(255,215,0,0.4); margin:0;">
+            ★ Легендарні Хіти
+        </h2>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
         {% for product in featured_products %}
         <div class="col">
-            <div class="card h-100 position-relative" style="border-color:rgba(201,168,76,0.3);">
-                <span class="position-absolute top-0 end-0 m-2 cit-rarity cit-rarity-legend">Хіт</span>
+            <div class="card h-100 position-relative" style="border-color:rgba(255,215,0,0.4); background:rgba(16,28,42,0.85);">
+                <span class="position-absolute top-0 end-0 m-3 cit-rarity cit-rarity-legend">Хіт</span>
                 {% with product.images.all|first as img %}
-                    {% if img %}<img src="{{ img.image.url }}" class="card-img-top" style="height:180px;object-fit:cover;" alt="{{ product.name }}">{% endif %}
+                    {% if img %}
+                        <img src="{{ img.image.url }}" class="card-img-top" style="height:200px; object-fit:cover; border-radius:16px 16px 0 0;" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="text-center py-5 text-muted">Немає фото</div>
+                    {% endif %}
                 {% endwith %}
-                <div class="card-body">
-                    <h6 class="card-title" style="color:var(--c-text-h);">{{ product.name }}</h6>
-                    <p class="card-text" style="color:var(--c-gold);font-weight:600;">{{ product.price }} грн</p>
-                    <a href="{{ product.get_absolute_url }}" class="btn btn-cit-outline btn-sm w-100">Детальніше</a>
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title fw-bold" style="color:var(--c-text-h);">{{ product.name }}</h6>
+                    <p class="card-text mb-3" style="color:var(--c-gold); font-size:1.2rem; font-weight:700;">{{ product.price }} грн</p>
+                    <a href="{{ product.get_absolute_url }}" class="btn btn-cit-outline btn-sm w-100 mt-auto">Детальніше</a>
                 </div>
             </div>
         </div>
@@ -128,78 +105,211 @@ document.addEventListener('click', function(e) {
     </div>
 </section>
 {% endif %}
-<div class="row">
+
+<!-- ══════════════════════════════════════════════
+     CATALOG SECTION WITH CATEGORIES & SORTING
+     ══════════════════════════════════════════════ -->
+<div class="row g-4">
+    <!-- Categories Sidebar -->
     <aside class="col-md-3">
-        <h5>Категорії</h5>
-        <div class="list-group mb-3">
-            <a href="{% url 'shop:product_list' %}" class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}">
-                Всі товари
-            </a>
-            {% for category in categories %}
-                <a href="{% url 'shop:product_list_by_category' category.id %}" 
-                   class="list-group-item list-group-item-action fw-bold {% if selected_category.id == category.id %}active{% endif %}">
-                    {{ category.name }}
+        <div class="card p-3">
+            <h5 style="font-family:'Orbitron',sans-serif; font-size:0.9rem; letter-spacing:0.1em; color:var(--c-accent-lt); text-transform:uppercase; margin-bottom:1rem;">
+                Категорії
+            </h5>
+            <div class="nav flex-column nav-pills gap-1">
+                <a href="{% url 'shop:product_list' %}" class="nav-link {% if not selected_category %}active bg-info text-dark font-weight-bold{% else %}text-light{% endif %}" style="border-radius:10px;">
+                    🌐 Всі артефакти
                 </a>
-                {% with children=category.get_children %}
-                    {% for child in children %}
-                        <a href="{% url 'shop:product_list_by_category' child.id %}" 
-                           class="list-group-item list-group-item-action ps-4 text-muted {% if selected_category.id == child.id %}active text-white{% endif %}">
-                            └ {{ child.name }}
-                        </a>
-                    {% endfor %}
-                {% endwith %}
-            {% endfor %}
+                {% for category in categories %}
+                    <a href="{% url 'shop:product_list_by_category' category.id %}" 
+                       class="nav-link fw-bold {% if selected_category.id == category.id %}active bg-info text-dark{% else %}text-light{% endif %}" style="border-radius:10px;">
+                        🔹 {{ category.name }}
+                    </a>
+                    {% with children=category.get_children %}
+                        {% for child in children %}
+                            <a href="{% url 'shop:product_list_by_category' child.id %}" 
+                               class="nav-link ps-4 small {% if selected_category.id == child.id %}active bg-info text-dark{% else %}text-muted{% endif %}" style="border-radius:8px;">
+                                └ {{ child.name }}
+                            </a>
+                        {% endfor %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
         </div>
     </aside>
 
+    <!-- Main Products Grid -->
     <div class="col-md-9">
-        <h1 class="mb-4">
-            {% if selected_category %}{{ selected_category.name }}{% else %}Каталог товарів{% endif %}
-        </h1>
-        
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h2 style="font-family:'Cinzel Decorative',serif; font-size:1.3rem; margin:0; color:#fff;">
+                {% if selected_category %}{{ selected_category.name }}{% else %}Всі Знахідки{% endif %}
+            </h2>
+
+            <!-- Sorting Pills -->
+            <div class="d-flex gap-2">
+                <a href="?sort=name{% if query %}&q={{ query }}{% endif %}" class="btn btn-sm {% if sort == 'name' %}btn-cit-primary{% else %}btn-cit-outline{% endif %}">За назвою</a>
+                <a href="?sort=price_asc{% if query %}&q={{ query }}{% endif %}" class="btn btn-sm {% if sort == 'price_asc' %}btn-cit-primary{% else %}btn-cit-outline{% endif %}">Спочатку дешеві</a>
+                <a href="?sort=price_desc{% if query %}&q={{ query }}{% endif %}" class="btn btn-sm {% if sort == 'price_desc' %}btn-cit-primary{% else %}btn-cit-outline{% endif %}">Спочатку дорогі</a>
+            </div>
+        </div>
+
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
             {% for product in products %}
                 <div class="col">
-                    <div class="card h-100">
+                    <div class="card h-100 border-0 position-relative">
+                        <span class="position-absolute top-0 end-0 m-3 cit-rarity cit-rarity-{{ product.rarity }}" style="z-index:2;">
+                            {{ product.get_rarity_display }}
+                        </span>
                         {% with product.images.all|first as main_image %}
                             {% if main_image %}
-                                <img src="{{ main_image.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                                <img src="{{ main_image.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 220px; object-fit: cover; border-radius:24px 24px 0 0;">
                             {% else %}
-                                <div class="bg-secondary text-white text-center py-5">Немає фото</div>
+                                <div class="bg-secondary text-white text-center py-5" style="height:220px; border-radius:24px 24px 0 0;">Немає фото</div>
                             {% endif %}
                         {% endwith %}
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text text-muted small">{{ product.category.name }}</p>
-                            <p class="fw-bold fs-5 mt-auto">{{ product.price }} грн</p>
-                            <a href="{% url 'shop:product_detail' product.id product.slug %}" class="btn btn-primary w-100">Детальніше</a>
+                        <div class="card-body d-flex flex-column p-4">
+                            <span class="text-muted small mb-1">{{ product.category.name }}</span>
+                            <h5 class="card-title fw-bold text-white mb-2">{{ product.name }}</h5>
+                            <div class="mt-auto pt-3 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold fs-5" style="color:var(--c-gold);">{{ product.price }} грн</span>
+                                <a href="{% url 'shop:product_detail' product.id product.slug %}" class="btn btn-cit-outline btn-sm px-3">Детальніше</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             {% empty %}
                 <div class="col-12">
-                    <p class="alert alert-warning">Товарів за вашим запитом не знайдено.</p>
+                    <div class="alert alert-info text-center p-4">
+                        Товарів за вашим запитом не знайдено.
+                    </div>
                 </div>
             {% endfor %}
         </div>
 
+        <!-- Pagination -->
         {% if products.has_other_pages %}
-            <nav class="mt-4">
-                <ul class="pagination">
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
                     {% if products.has_previous %}
-                        <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">&laquo;</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">&laquo;</a></li>
                     {% endif %}
                     {% for num in products.paginator.page_range %}
                         <li class="page-item {% if products.number == num %}active{% endif %}">
-                            <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+                            <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
                         </li>
                     {% endfor %}
                     {% if products.has_next %}
-                        <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}">&raquo;</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">&raquo;</a></li>
                     {% endif %}
                 </ul>
             </nav>
         {% endif %}
     </div>
 </div>
+
+<style>
+/* Animation keyframes for Hero Emblem & Clouds */
+@keyframes orbitSpin {
+    0%   { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes orbitSpinRev {
+    0%   { transform: translate(-50%, -50%) rotate(360deg); }
+    100% { transform: translate(-50%, -50%) rotate(0deg); }
+}
+@keyframes emblemRotate {
+    0%   { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes counterRotate {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(-360deg); }
+}
+
+.hero-cloud-tag {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(calc(-50% + cos(var(--angle)) * var(--dist)), calc(-50% + sin(var(--angle)) * var(--dist)));
+    padding: 6px 14px;
+    background: rgba(16, 28, 42, 0.95);
+    border: 1px solid var(--c-accent);
+    color: var(--c-accent-lt);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+    white-space: nowrap;
+    animation: heroCloudFloat 4s ease-in-out infinite alternate;
+    z-index: 5;
+    transition: all 0.3s ease;
+}
+.hero-cloud-tag:hover {
+    transform: translate(calc(-50% + cos(var(--angle)) * var(--dist)), calc(-50% + sin(var(--angle)) * var(--dist))) scale(1.15);
+    background: var(--c-accent);
+    color: #03070d;
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
+}
+
+@keyframes heroCloudFloat {
+    0%   { margin-top: 0px; }
+    100% { margin-top: -10px; }
+}
+</style>
+
+{% block extra_js %}
+<script>
+// Search Autocomplete
+const searchInput = document.getElementById('search-input');
+const dropdown    = document.getElementById('search-dropdown');
+let searchTimer;
+
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        clearTimeout(searchTimer);
+
+        if (query.length < 2) {
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        searchTimer = setTimeout(() => {
+            fetch(`{% url 'shop:search_autocomplete' %}?q=${encodeURIComponent(query)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.results.length === 0) {
+                        dropdown.style.display = 'none';
+                        return;
+                    }
+
+                    dropdown.innerHTML = data.results.map(item => `
+                        <a href="${item.url}"
+                           style="display:flex; justify-content:space-between; align-items:center;
+                                  padding:12px 18px; color:var(--c-text-h); text-decoration:none;
+                                  border-bottom:1px solid var(--c-border); transition:background 0.2s;"
+                           onmouseover="this.style.background='rgba(0, 240, 255, 0.12)'"
+                           onmouseout="this.style.background=''">
+                            <div>
+                                <div style="font-weight:600; color:#fff;">${item.name}</div>
+                                <div style="font-size:0.75rem; color:var(--c-accent-lt);">${item.category}</div>
+                            </div>
+                            <div style="color:var(--c-gold); font-weight:700;">${item.price} грн</div>
+                        </a>
+                    `).join('');
+
+                    dropdown.style.display = 'block';
+                });
+        }, 250);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}
+
 {% endblock %}

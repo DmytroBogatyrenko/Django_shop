@@ -17,10 +17,10 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name", "price", "category", "is_featured", "created_at"]
+    list_display = ["name", "price", "stock", "category", "is_featured", "created_at"]
     list_filter = ["category", "is_featured"]
     search_fields = ["name"]
-    list_editable = ["is_featured"]
+    list_editable = ["is_featured", "stock"]
     prepopulated_fields = {"slug": ("name",)}
 
     inlines = [ProductImageInline]

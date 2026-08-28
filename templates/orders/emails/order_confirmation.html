@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Замовлення підтверджено</title>
+</head>
+<body style="font-family: sans-serif; color: #333; line-height: 1.6;">
+    <h2>Вітаємо, {{ order.first_name }}!</h2>
+    <p>Дякуємо за замовлення №<strong>{{ order.order_number }}</strong>.</p>
+    
+    <h3>Деталі замовлення:</h3>
+    <ul>
+    {% for item in items %}
+        <li>{{ item.product.name }} — {{ item.quantity }} шт. х {{ item.price }} грн = {{ item.get_cost }} грн</li>
+    {% endfor %}
+    </ul>
+    
+    <p><strong>Загальна сума:</strong> {{ order.total_amount }} грн</p>
+    <p><strong>Адреса доставки:</strong> {{ order.address }}, {{ order.city }}</p>
+    
+    <p>Ми зв'яжемося з вами найближчим часом для підтвердження!</p>
+</body>
+</html>

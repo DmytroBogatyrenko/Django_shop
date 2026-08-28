@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import ShippingAddress
+from .models import Order, ShippingAddress
 
 
 class ShippingAddressForm(forms.ModelForm):
@@ -17,3 +17,18 @@ class ShippingAddressForm(forms.ModelForm):
             'address':     forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'вул. Хрещатик, 1, кв. 10'}),
             'postal_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '01001'}),
         }
+
+
+class OrderCheckoutForm(forms.Form):
+
+    payment_method = forms.ChoiceField(
+        label='Спосіб оплати',
+        choices=Order.PAYMENT_CHOICES,
+        widget=forms.RadioSelect,
+        initial='cash',
+    )
+    notes = forms.CharField(
+        label='Коментар до замовлення',
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Необов’язково'}),
+    )

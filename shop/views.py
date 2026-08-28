@@ -76,21 +76,44 @@ def product_detail(request, id, slug):
     request.session.modified = True
 
     from django.db.models import Avg
-    reviews = []
-    avg_rating = None
-    try:
-        from reviews.models import Review
-        reviews = Review.objects.filter(
-            product=product, is_approved=True
-        ).select_related('user').order_by('-created_at')
-        avg_rating = reviews.aggregate(avg=Avg('rating'))['avg']
-    except Exception:
-        pass
+    from reviews.models import Review
+    from orders.models import OrderItem
+
+    reviews_qs = Review.objects.filter(
+        product=product, is_approved=True
+    ).select_related('user')
+
+    review_sort = request.GET.get('review_sort', 'newest')
+    if review_sort == 'helpful':
+        reviews_qs = reviews_qs.order_by('-helpful_votes', '-created_at')
+    else:
+        reviews_qs = reviews_qs.order_by('-created_at')
+
+    avg_rating_val = reviews_qs.aggregate(avg=Avg('rating'))['avg']
+    avg_rating = round(avg_rating_val, 1) if avg_rating_val else None
+
+    reviews_paginator = Paginator(reviews_qs, 5)
+    review_page_num = request.GET.get('review_page', 1)
+    reviews_page = reviews_paginator.get_page(review_page_num)
+
+    can_review = False
+    has_reviewed = False
+    if request.user.is_authenticated:
+        has_purchased = OrderItem.objects.filter(
+            order__user=request.user,
+            product=product,
+        ).exists()
+        has_reviewed = Review.objects.filter(user=request.user, product=product).exists()
+        can_review = has_purchased and not has_reviewed
 
     return render(request, 'shop/product_detail.html', {
         'product': product,
-        'reviews': reviews,
+        'reviews': reviews_page,
         'avg_rating': avg_rating,
+        'avg_rating_int': int(round(avg_rating)) if avg_rating else 0,
+        'review_sort': review_sort,
+        'can_review': can_review,
+        'has_reviewed': has_reviewed,
     })
 
 

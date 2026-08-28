@@ -1,13 +1,22 @@
+from django.contrib.auth import get_user_model
+from django.contrib.auth.signals import user_logged_in
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .models import CustomUser, UserProfile
+from cart.cart import merge_carts
+from .models import UserProfile
+
+User = get_user_model()
 
 
-@receiver(post_save, sender=CustomUser)
+@receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
-        UserProfile.objects.create(user=instance)
-    else:
-
+        UserProfile.objects.get_or_create(user=instance)
+    elif hasattr(instance, 'profile'):
         instance.profile.save()
+
+
+@receiver(user_logged_in)
+def merge_session_cart_into_database(sender, request, user, **kwargs):
+    merge_carts(request, user=user)

@@ -1,0 +1,13 @@
+Вітаємо, {{ order.first_name }}!
+
+Дякуємо за замовлення №{{ order.order_number }}.
+
+Деталі замовлення:
+{% for item in items %}
+- {{ item.product.name }} — {{ item.quantity }} шт. х {{ item.price }} грн = {{ item.get_cost }} грн
+{% endfor %}
+
+Загальна сума: {{ order.total_amount }} грн
+Адреса доставки: {{ order.address }}, {{ order.city }}
+
+Ми зв'яжемося з вами найближчим часом!

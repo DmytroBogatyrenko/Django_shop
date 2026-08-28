@@ -15,15 +15,15 @@ class RegisterViewTest(TestCase):
     
     def setUp(self):
         self.client = Client()
-        self.url = reverse('accounts:register')
+        self.url = reverse('accounts:signup')
 
-    def test_register_page_loads(self):
+    def test_signup_page_loads(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
-    def test_register_uses_correct_template(self):
+    def test_signup_uses_correct_template(self):
         response = self.client.get(self.url)
-        self.assertTemplateUsed(response, 'accounts/register.html')
+        self.assertTemplateUsed(response, 'accounts/signup.html')
 
     def test_successful_registration(self):
         data = {
@@ -48,7 +48,7 @@ class RegisterViewTest(TestCase):
         if user:
             self.assertTrue(UserProfile.objects.filter(user=user).exists())
 
-    def test_register_with_wrong_passwords(self):
+    def test_signup_with_wrong_passwords(self):
         data = {
             'username': 'baduser',
             'email': 'bad@citadel.ua',
@@ -59,7 +59,7 @@ class RegisterViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username='baduser').exists())
 
-    def test_authenticated_user_redirected_from_register(self):
+    def test_authenticated_user_redirected_from_signup(self):
         User.objects.create_user(username='existing', password='pass123')
         self.client.login(username='existing', password='pass123')
         response = self.client.get(self.url)
