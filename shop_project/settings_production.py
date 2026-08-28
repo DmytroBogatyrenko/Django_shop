@@ -5,7 +5,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-prod-build-fallback-k
 DEBUG = False
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
-# База даних
 import dj_database_url
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
@@ -16,7 +15,6 @@ if DATABASE_URL:
         )
     }
 
-# Redis
 REDIS_URL = os.environ.get('REDIS_URL')
 if REDIS_URL:
     CACHES = {
@@ -31,7 +29,6 @@ if REDIS_URL:
         }
     }
 
-# Прибираємо debug_toolbar і будуємо MIDDLEWARE заново в правильному порядку
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -44,14 +41,11 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
-# Прибираємо debug_toolbar з INSTALLED_APPS
 INSTALLED_APPS = [app for app in INSTALLED_APPS if app != 'debug_toolbar']
 
-# Статичні файли
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Безпека
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 SESSION_COOKIE_SECURE = True

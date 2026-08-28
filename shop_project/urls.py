@@ -5,8 +5,6 @@ from django.conf.urls.static import static
 from .admin_views import dashboard, export_orders_csv
 
 urlpatterns = [
-    # Дашборд має йти РАНІШЕ admin/, бо 'admin/' — префіксний include()
-    # і без цього перехоплює на себе весь шлях 'admin/dashboard/'.
     path('admin/dashboard/', dashboard, name='analytics_dashboard'),
     path('admin/dashboard/export/', export_orders_csv, name='analytics_export'),
     path('admin/', admin.site.urls),

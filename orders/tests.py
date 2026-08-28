@@ -50,11 +50,9 @@ class CheckoutViewTest(TestCase):
             'city': 'Камелот', 'address': 'вул. Лицарів, 1',
             'postal_code': '01000',
         }
-        # Крок 1: адреса доставки.
         response = self.client.post(reverse('orders:checkout'), address_data)
         self.assertRedirects(response, reverse('orders:checkout_confirm'))
 
-        # Крок 2: спосіб оплати та підтвердження.
         response = self.client.post(reverse('orders:checkout_confirm'), {
             'payment_method': 'cash', 'notes': '',
         })

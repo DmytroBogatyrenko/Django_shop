@@ -1,5 +1,3 @@
-"""Моделі кошика, що зберігається в базі даних."""
-
 import uuid
 from decimal import Decimal
 
@@ -10,12 +8,6 @@ from shop.models import Product
 
 
 class Cart(models.Model):
-    """Кошик у базі даних.
-
-    Використовується для зареєстрованих користувачів. Після успішної оплати
-    кошик позначається `paid_status=True` і більше не використовується —
-    користувач отримує новий порожній кошик.
-    """
 
     cart_code = models.CharField('Код кошика', max_length=250, unique=True, blank=True)
     user = models.ForeignKey(
@@ -45,11 +37,9 @@ class Cart(models.Model):
         super().save(*args, **kwargs)
 
     def get_total_items(self):
-        """Скільки одиниць товару всього в кошику."""
         return sum(item.quantity for item in self.items.all())
 
     def get_total_price(self):
-        """Загальна сума кошика."""
         return sum(
             (item.get_total_price() for item in self.items.select_related('product')),
             Decimal('0.00'),
@@ -57,7 +47,6 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    """Один товар у кошику разом із кількістю."""
 
     cart = models.ForeignKey(
         Cart,

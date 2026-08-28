@@ -16,7 +16,6 @@ SESSION_ADDRESS_KEY = 'checkout_address'
 
 
 def _get_promocode_context(request, subtotal):
-    """Порахувати знижку за промокодом, застосованим у сесії (див. promocode app)."""
     from promocode.models import Promocode
 
     promocode = None
@@ -40,7 +39,6 @@ def _get_promocode_context(request, subtotal):
 
 @login_required
 def checkout(request):
-    """Крок 1: адреса доставки."""
     cart = Cart(request)
 
     if len(cart) == 0:
@@ -51,8 +49,6 @@ def checkout(request):
 
     if request.method == 'POST':
         if form.is_valid():
-            # Адресу поки не пишемо в базу — вона стане частиною замовлення
-            # тільки на кроці підтвердження.
             request.session[SESSION_ADDRESS_KEY] = form.cleaned_data
             return redirect('orders:checkout_confirm')
         messages.error(request, 'Перевірте правильність заповнення форми.')
@@ -68,7 +64,6 @@ def checkout(request):
 
 @login_required
 def checkout_confirm(request):
-    """Крок 2: спосіб оплати, підсумок і створення замовлення."""
     cart = Cart(request)
 
     if len(cart) == 0:
@@ -125,11 +120,7 @@ def checkout_confirm(request):
 
 @transaction.atomic
 def _create_order(user, cart, address_data, payment_method, notes, promocode, discount_amount):
-    """Створити замовлення з вмісту кошика; списати залишки на складі.
 
-    Уся функція виконується в одній транзакції: якщо на будь-якому товарі
-    забракне залишку, база відкотиться до стану «замовлення не було».
-    """
     items = list(cart)
     if not items:
         raise ValueError('скарбниця порожня')
@@ -148,8 +139,6 @@ def _create_order(user, cart, address_data, payment_method, notes, promocode, di
     ShippingAddress.objects.create(order=order, **address_data)
 
     for item in items:
-        # select_for_update блокує рядок товару до кінця транзакції,
-        # щоб двоє покупців не «купили» один і той самий останній екземпляр.
         product = Product.objects.select_for_update().get(pk=item['product'].pk)
 
         if product.stock < item['quantity']:
@@ -163,7 +152,6 @@ def _create_order(user, cart, address_data, payment_method, notes, promocode, di
             quantity=item['quantity'],
         )
 
-        # F() рахує нове значення на боці бази — без гонок «прочитав-змінив-записав».
         Product.objects.filter(pk=product.pk).update(stock=F('stock') - item['quantity'])
 
     if promocode:
@@ -175,7 +163,6 @@ def _create_order(user, cart, address_data, payment_method, notes, promocode, di
 
 @login_required
 def order_success(request, order_id):
-    """Сторінка «дякуємо за замовлення»."""
     order = get_object_or_404(Order, id=order_id, user=request.user)
     return render(request, 'orders/order_success.html', {'order': order})
 

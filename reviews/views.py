@@ -14,7 +14,6 @@ from .models import Review
 def add_review(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
-    # Перевірка: чи купував користувач цей товар
     has_purchased = OrderItem.objects.filter(
         order__user=request.user,
         product=product,
@@ -41,7 +40,7 @@ def add_review(request, product_id):
                 'Дякуємо за відгук! Він успішно доданий.'
             )
         else:
-            messages.error(request, 'Перевірте правильність заповнення форми відгуку.')
+            messages.error(request, 'Перевірте правильність заповнення форми відгуку')
 
     return redirect(product.get_absolute_url())
 

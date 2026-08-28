@@ -20,7 +20,7 @@ def _clamp_quantity(product, quantity):
         return None, 'Кількість має бути більшою за 0'
 
     if quantity > MAX_QUANTITY_PER_PRODUCT:
-        return None, f'Максимальна кількість одного товару — {MAX_QUANTITY_PER_PRODUCT} шт.'
+        return None, f'Максимальна кількість одного товару — {MAX_QUANTITY_PER_PRODUCT} шт'
 
     if quantity > product.stock:
         return None, f'Доступно тільки {product.stock} од. товару «{product.name}»'
@@ -44,7 +44,7 @@ def cart_add(request, product_id):
         return redirect('shop:product_detail', id=product.id, slug=product.slug)
 
     cart.add(product=product, quantity=quantity)
-    messages.success(request, f'«{product.name}» додано до скарбниці.')
+    messages.success(request, f'«{product.name}» додано до скарбниці')
     return redirect('cart:cart_detail')
 
 
@@ -56,7 +56,7 @@ def cart_update(request, product_id):
 
     if quantity <= 0:
         cart.remove(product)
-        messages.success(request, f'«{product.name}» видалено зі скарбниці.')
+        messages.success(request, f'«{product.name}» видалено зі скарбниці')
         return redirect('cart:cart_detail')
 
     quantity, error = _clamp_quantity(product, quantity)
@@ -74,14 +74,14 @@ def cart_remove(request, product_id):
     cart = get_cart(request)
     product = get_object_or_404(Product, id=product_id)
     cart.remove(product)
-    messages.success(request, f'«{product.name}» видалено зі скарбниці.')
+    messages.success(request, f'«{product.name}» видалено зі скарбниці')
     return redirect('cart:cart_detail')
 
 
 @require_POST
 def cart_clear(request):
     get_cart(request).clear()
-    messages.success(request, 'Скарбницю очищено.')
+    messages.success(request, 'Скарбницю очищено')
     return redirect('cart:cart_detail')
 
 

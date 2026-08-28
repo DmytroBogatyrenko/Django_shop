@@ -23,7 +23,6 @@ class ReviewModelTest(TestCase):
             stock=10,
         )
 
-        # Створюємо замовлення для користувача buyer
         self.order = Order.objects.create(
             user=self.user,
             total_price=Decimal('100.00'),
@@ -39,12 +38,11 @@ class ReviewModelTest(TestCase):
         )
 
     def test_review_creation_verified_purchase(self):
-        """Перевірка автоматичного прапорця is_verified_purchase при збереженні."""
         review = Review.objects.create(
             user=self.user,
             product=self.product,
             rating=5,
-            text='Чудовий товар!',
+            text='Чудовий товар',
         )
         self.assertTrue(review.is_verified_purchase)
 
@@ -57,7 +55,6 @@ class ReviewModelTest(TestCase):
         self.assertFalse(non_verified_review.is_verified_purchase)
 
     def test_add_review_view_requires_purchase(self):
-        """Перевірка створення відгуку через view: тільки для покупців."""
         self.client.login(username='guest_user', password='password123')
         response = self.client.post(
             reverse('reviews:add_review', kwargs={'product_id': self.product.id}),
@@ -66,7 +63,6 @@ class ReviewModelTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Review.objects.filter(user=self.non_buyer, product=self.product).exists())
 
-        # Тепер входимо покупцем
         self.client.login(username='buyer', password='password123')
         response = self.client.post(
             reverse('reviews:add_review', kwargs={'product_id': self.product.id}),
@@ -76,7 +72,6 @@ class ReviewModelTest(TestCase):
         self.assertTrue(Review.objects.filter(user=self.user, product=self.product).exists())
 
     def test_vote_review(self):
-        """Перевірка голосування за корисність відгуку."""
         review = Review.objects.create(
             user=self.user,
             product=self.product,

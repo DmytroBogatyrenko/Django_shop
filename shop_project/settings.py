@@ -1,7 +1,3 @@
-"""
-Django settings for shop_project project.
-"""
-
 import os
 from pathlib import Path
 
